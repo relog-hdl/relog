@@ -1,0 +1,4 @@
+#ifndef RELOG_PARSE_PARSE_HPP
+#define RELOG_PARSE_PARSE_HPP
+
+#endif
