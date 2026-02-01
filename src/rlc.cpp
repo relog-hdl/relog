@@ -1,11 +1,12 @@
-#include<cstdio>
+#include <cstdio>
 
-#include<util/namespace.hpp>
+#include <util/namespace.hpp>
 
 #include "rlc.hpp"
 using namespace relog;
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
 	return 0;
 }

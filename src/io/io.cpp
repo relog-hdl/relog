@@ -1,23 +1,20 @@
-#include<fstream>
+#include <fstream>
 
-#include<util/namespace.hpp>
+#include <util/namespace.hpp>
 
 #include "io.hpp"
 using namespace relog;
 
 class SourceTree
 {
-
 };
-	
+
 class SourceTreeNode
 {
-	protected: 
+protected:
 	enum Type
 	{
 		DIRECTORY,
 		FILE
 	};
-
-
 };
