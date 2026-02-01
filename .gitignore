@@ -3,6 +3,8 @@ CMakeCache.txt
 *.cmake
 Makefile
 compile_commands.json
+_cmake_configure_lock
+_cmake_configure_try_lock
 
 .vscode
 .vscode/*
