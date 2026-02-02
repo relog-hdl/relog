@@ -2,7 +2,7 @@
 
 #include <util/namespace.hpp>
 
-#include "io.hpp"
+#include "sourcetree.hpp"
 using namespace relog;
 
 class SourceTree

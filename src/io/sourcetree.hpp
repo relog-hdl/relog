@@ -1,0 +1,4 @@
+#ifndef RELOG_IO_SOURCETREE_HPP
+#define RELOG_IO_SOURCETREE_HPP
+
+#endif
