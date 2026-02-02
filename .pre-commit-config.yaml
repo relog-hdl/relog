@@ -27,3 +27,7 @@ repos:
         args: [-B.,--checks=readability-magic-numbers,--warnings-as-errors=*]
       - id: include-what-you-use
         args: [-B.]
+  - repo: https://github.com/pocc/pre-commit-hooks
+    rev: v1.3.5
+    hooks:
+      - id: cppcheck
