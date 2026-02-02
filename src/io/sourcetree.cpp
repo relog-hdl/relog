@@ -1,9 +1,9 @@
 #include <fstream>
 
-#include <util/namespace.hpp>
-
 #include "sourcetree.hpp"
-using namespace relog;
+
+namespace relog
+{
 
 class SourceTree
 {
@@ -18,3 +18,5 @@ protected:
 		FILE
 	};
 };
+
+} // namespace relog
