@@ -1,6 +1,6 @@
-#include <cstdio>
-
 #include "rlc.hpp"
+
+#include <cstdio>
 
 int
 main(int argc, char* argv[])

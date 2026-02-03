@@ -1,6 +1,6 @@
-#include <fstream>
-
 #include "sourcetree.hpp"
+
+#include <fstream>
 
 namespace relog
 {
