@@ -11,12 +11,12 @@ class SourceTree
 
 class SourceTreeNode
 {
-protected:
-	enum Type
-	{
-		DIRECTORY,
-		FILE
-	};
+	protected:
+		enum Type
+		{
+			DIRECTORY,
+			FILE
+		};
 };
 
 } // namespace relog
