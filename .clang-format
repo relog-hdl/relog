@@ -3,6 +3,7 @@ BasedOnStyle: GNU
 UseTab: Always
 IndentWidth: 4
 TabWidth: 4
+ColumnLimit: 0
 ---
 Language: Cpp
 NamespaceIndentation: None
@@ -21,10 +22,12 @@ BreakBeforeBraces: Custom
 BraceWrapping:
   AfterCaseLabel: true
   AfterClass: true
+  AfterControlStatement: true
   AfterEnum: true
   AfterFunction: true
   AfterNamespace: true
   AfterStruct: true
+  AfterUnion: true
   AfterExternBlock: true
   BeforeCatch: true
   BeforeElse: true
@@ -46,6 +49,7 @@ SpaceBeforeParens: Custom
 SpaceBeforeParensOptions:
   AfterControlStatements: false
   AfterForeachMacros: false
+  AfterFunctionDeclarationName: false
   AfterFunctionDefinitionName: false
   AfterIfMacros: false
   AfterOverloadedOperator: false
