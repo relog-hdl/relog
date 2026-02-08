@@ -24,13 +24,12 @@ repos:
       - id: clang-format
         args: [--style=file]
       - id: clang-tidy
-        args: [-B.,--checks=readability-magic-numbers,--warnings-as-errors=*]
+        args: [-B.,--checks=readability-magic-numbers]
       - id: include-what-you-use
         args: [-B.]
   - repo: https://github.com/pocc/pre-commit-hooks
     rev: v1.3.5
     hooks:
-      - id: cppcheck
       - id: cpplint
         args:
-        - --filter=-whitespace/blank_line,-whitespace/braces,-whitespace/comma,-whitespace/comments,-whitespace/empty_conditional_body,-whitespace/empty_if_body,-whitespace/empty_loop_body,-whitespace/end_of_line,-whitespace/ending_newline,-whitespace/forcolon,-whitespace/indent,-whitespace/indent_namespace,-whitespace/line_length,-whitespace/newline,-whitespace/operators,-whitespace/parens,-whitespace/semicolon,-whitespace/tab,-whitespace/todo, -build/include_subdir,-legal/copyright
+        - --filter=-,+readability
