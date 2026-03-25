@@ -6,6 +6,7 @@ TabWidth: 4
 ColumnLimit: 0
 ---
 Language: Cpp
+Standard: Latest
 NamespaceIndentation: None
 IndentAccessModifiers: true
 AccessModifierOffset: 0
