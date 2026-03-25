@@ -41,12 +41,20 @@ class Domain
 	protected:
 		Domain(std::weak_ptr<Domain> parent, std::string name);
 
+		template<typename... strings>
+		std::shared_ptr<Domain> getOrCreateChildrenImpl_(std::shared_ptr<Domain> current, std::string name, strings... names);
+
+		std::shared_ptr<Domain> getOrCreateChildrenImpl_(std::shared_ptr<Domain> current);
+
 	public:
 		virtual ~Domain();
 
 		static std::shared_ptr<Domain> createRoot(std::string name);
 
 		std::shared_ptr<Domain> getOrCreateChild(std::string name);
+
+		template<typename... strings>
+		std::shared_ptr<Domain> getOrCreateChildren(std::string name, strings... names);
 
 		bool isRoot();
 
@@ -77,6 +85,11 @@ class DomainProxy
 		DomainProxy(std::shared_ptr<Domain> domain);
 
 		virtual ~DomainProxy();
+
+		template<typename... strings>
+		DomainProxy relative(strings... names);
+
+		DomainProxy operator/(std::string name);
 
 		bool isRoot();
 

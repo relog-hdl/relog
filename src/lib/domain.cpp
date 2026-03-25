@@ -48,6 +48,26 @@ Domain::getOrCreateChild(std::string name)
 	return domain_ptr;
 }
 
+template<typename... strings>
+std::shared_ptr<Domain>
+Domain::getOrCreateChildren(std::string name, strings... names)
+{
+	return getOrCreateChildrenImpl_(getOrCreateChild(name), names...);
+}
+
+template<typename... strings>
+std::shared_ptr<Domain>
+Domain::getOrCreateChildrenImpl_(std::shared_ptr<Domain> current, std::string name, strings... names)
+{
+	return getOrCreateChildrenImpl_(current->getOrCreateChild(name), names...);
+}
+
+std::shared_ptr<Domain>
+Domain::getOrCreateChildrenImpl_(std::shared_ptr<Domain> current)
+{
+	return current;
+}
+
 bool
 Domain::isRoot()
 {
@@ -177,6 +197,19 @@ DomainProxy::DomainProxy(std::shared_ptr<Domain> domain)
 }
 
 DomainProxy::~DomainProxy() {}
+
+template<typename... strings>
+DomainProxy
+DomainProxy::relative(strings... names)
+{
+	return DomainProxy(m_domain->getOrCreateChildren(names...));
+}
+
+DomainProxy
+DomainProxy::operator/(std::string name)
+{
+	return relative(name);
+}
 
 bool
 DomainProxy::isRoot()
