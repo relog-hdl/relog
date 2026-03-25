@@ -69,6 +69,34 @@ class Domain
 		std::partial_ordering operator<=>(const Domain&) const;
 };
 
+class DomainProxy
+{
+		std::shared_ptr<Domain> m_domain;
+
+	public:
+		DomainProxy(std::shared_ptr<Domain> domain);
+
+		virtual ~DomainProxy();
+
+		bool isRoot();
+
+		DomainProxy getRoot();
+
+		DomainProxy getParent();
+
+		std::list<DomainProxy> getChain();
+
+		std::string getName();
+
+		std::string getFullyQualifiedName(const char separator = RELOG_LIB_DOMAIN_HPP_DEFAULT_SEPARATOR, bool reverse = false);
+
+		std::partial_ordering compare(DomainProxy& other);
+
+		std::partial_ordering operator<=>(const DomainProxy& other) const;
+
+		std::shared_ptr<Domain> unwrap();
+};
+
 /**
  * @class DomainOwner
  * @brief Convenience wrapper for `Domain` class functions
@@ -93,7 +121,7 @@ class DomainOwner
 		virtual ~DomainOwner();
 
 		template<typename... strings>
-		std::shared_ptr<Domain> get(std::string name, strings... names);
+		DomainProxy get(std::string name, strings... names);
 
 	protected:
 		template<typename... strings>

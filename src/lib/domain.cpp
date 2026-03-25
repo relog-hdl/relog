@@ -171,12 +171,79 @@ Domain::operator<=>(const Domain& other) const
 	return const_cast<Domain*>(this)->compare(const_cast<Domain&>(other));
 }
 
+DomainProxy::DomainProxy(std::shared_ptr<Domain> domain)
+{
+	m_domain = domain;
+}
+
+DomainProxy::~DomainProxy() {}
+
+bool
+DomainProxy::isRoot()
+{
+	return m_domain->isRoot();
+}
+
+DomainProxy
+DomainProxy::getRoot()
+{
+	return DomainProxy(m_domain->getRoot().lock());
+}
+
+DomainProxy
+DomainProxy::getParent()
+{
+	return DomainProxy(m_domain->getParent().lock());
+}
+
+std::list<DomainProxy>
+DomainProxy::getChain()
+{
+	std::list<std::weak_ptr<Domain>> src = m_domain->getChain();
+
+	std::list<DomainProxy> ret;
+	for(auto it = src.begin(); it != src.end(); ++it)
+		ret.push_back(DomainProxy(it->lock()));
+
+	return ret;
+}
+
+std::string
+DomainProxy::getName()
+{
+	return m_domain->getName();
+}
+
+std::string
+DomainProxy::getFullyQualifiedName(const char separator, bool reverse)
+{
+	return m_domain->getFullyQualifiedName(separator, reverse);
+}
+
+std::partial_ordering
+DomainProxy::compare(DomainProxy& other)
+{
+	return m_domain->compare(other.m_domain);
+}
+
+std::partial_ordering
+DomainProxy::operator<=>(const DomainProxy& other) const
+{
+	return m_domain->compare(other.m_domain);
+}
+
+std::shared_ptr<Domain>
+DomainProxy::unwrap()
+{
+	return m_domain;
+}
+
 DomainOwner::DomainOwner() {}
 
 DomainOwner::~DomainOwner() {}
 
 template<typename... strings>
-std::shared_ptr<Domain>
+DomainProxy
 DomainOwner::get(std::string name, strings... names)
 {
 	if(!m_domains.contains(name))
@@ -184,7 +251,7 @@ DomainOwner::get(std::string name, strings... names)
 
 	std::shared_ptr<Domain> root = m_domains[name];
 
-	return getImpl_(root, names...);
+	return DomainProxy(getImpl_(root, names...));
 }
 
 template<typename... strings>
