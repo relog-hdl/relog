@@ -1,5 +1,5 @@
-#ifndef RELOG_LIB_DOMAIN_HPP
-#define RELOG_LIB_DOMAIN_HPP
+#ifndef RELOG_LIB_DOMAIN_DOMAIN_HPP
+#define RELOG_LIB_DOMAIN_DOMAIN_HPP
 
 #include <list>
 #include <map>
@@ -8,7 +8,7 @@
 
 #define RELOG_LIB_DOMAIN_HPP_DEFAULT_SEPARATOR '/'
 
-namespace relog::lib
+namespace relog::lib::domain
 {
 
 /**
@@ -143,6 +143,6 @@ class DomainOwner
 		std::shared_ptr<Domain> getImpl_(std::shared_ptr<Domain> current);
 };
 
-} // namespace relog::lib
+} // namespace relog::lib::domain
 
 #endif

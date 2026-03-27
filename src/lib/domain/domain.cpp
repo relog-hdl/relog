@@ -5,7 +5,7 @@
 #include <memory>
 #include <string>
 
-namespace relog::lib
+namespace relog::lib::domain
 {
 
 Domain::Domain(std::weak_ptr<Domain> parent, std::string name)
@@ -300,4 +300,4 @@ DomainOwner::getImpl_(std::shared_ptr<Domain> current)
 	return current;
 }
 
-} // namespace relog::lib
+} // namespace relog::lib::domain
