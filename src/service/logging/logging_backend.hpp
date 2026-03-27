@@ -1,13 +1,13 @@
-#ifndef RELOG_LOGGING_LOGGING_BACKEND_HPP
-#define RELOG_LOGGING_LOGGING_BACKEND_HPP
+#ifndef RELOG_SERVICE_LOGGING_LOGGING_BACKEND_HPP
+#define RELOG_SERVICE_LOGGING_LOGGING_BACKEND_HPP
 
-namespace relog::logging
+namespace relog::service::logging
 {
 
 class ILoggingBackend
 {
 };
 
-} // namespace relog::logging
+} // namespace relog::service::logging
 
 #endif

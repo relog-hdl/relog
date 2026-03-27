@@ -1,6 +1,6 @@
 #include "logger.hpp"
 
-namespace relog::logging
+namespace relog::service::logging
 {
 
-} // namespace relog::logging
+} // namespace relog::service::logging
