@@ -1,7 +1,7 @@
 #ifndef RELOG_OPTS_HPP
 #define RELOG_OPTS_HPP
 
-#include <aliases.hpp>
+#include <util/aliases.hpp>
 
 #include <getopt.h>
 
