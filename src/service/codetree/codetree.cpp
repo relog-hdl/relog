@@ -1,15 +1,15 @@
-#include "sourcetree.hpp"
+#include "codetree.hpp"
 
 #include <fstream>
 
-namespace relog
+namespace relog::service::codetree
 {
 
-class SourceTree
+class CodeTree
 {
 };
 
-class SourceTreeNode
+class CodeTreeNode
 {
 	protected:
 		enum Type
@@ -19,4 +19,4 @@ class SourceTreeNode
 		};
 };
 
-} // namespace relog
+} // namespace relog::service::codetree

@@ -1,4 +1,9 @@
-#ifndef RELOG_IO_SOURCETREE_HPP
-#define RELOG_IO_SOURCETREE_HPP
+#ifndef RELOG_SERVICE_CODETREE_CODETREE_HPP
+#define RELOG_SERVICE_CODETREE_CODETREE_HPP
+
+namespace relog::service::codetree
+{
+
+}
 
 #endif
