@@ -6,9 +6,11 @@
 #include <memory>
 #include <string>
 
+#include <util/derived.hpp>
+
 #define RELOG_LIB_DOMAIN_HPP_DEFAULT_SEPARATOR '/'
 
-namespace relog::lib::domain
+namespace relog::lib
 {
 
 /**
@@ -29,85 +31,87 @@ namespace relog::lib::domain
  *
  * Should be used with `DomainOwner`.
  */
+template<typename TSelf>
 class Domain
 {
 		bool m_is_root;
-		std::weak_ptr<Domain> m_self;
-		std::weak_ptr<Domain> m_root;
-		std::weak_ptr<Domain> m_parent;
-		std::map<std::string, std::shared_ptr<Domain>> m_children;
+		std::weak_ptr<TSelf> m_self;
+		std::weak_ptr<TSelf> m_root;
+		std::weak_ptr<TSelf> m_parent;
+		std::map<std::string, std::shared_ptr<TSelf>> m_children;
 		std::string m_name;
 
 	protected:
-		Domain(std::weak_ptr<Domain> parent, std::string name);
+		Domain(std::weak_ptr<TSelf> parent, std::string name);
 
 		template<typename... strings>
-		std::shared_ptr<Domain> getOrCreateChildrenImpl_(std::shared_ptr<Domain> current, std::string name, strings... names);
+		std::shared_ptr<TSelf> getOrCreateChildrenImpl_(std::shared_ptr<TSelf> current, std::string name, strings... names);
 
-		std::shared_ptr<Domain> getOrCreateChildrenImpl_(std::shared_ptr<Domain> current);
+		std::shared_ptr<TSelf> getOrCreateChildrenImpl_(std::shared_ptr<TSelf> current);
 
 	public:
 		virtual ~Domain();
 
-		static std::shared_ptr<Domain> createRoot(std::string name);
+		static std::shared_ptr<TSelf> createRoot(std::string name);
 
-		std::shared_ptr<Domain> getOrCreateChild(std::string name);
+		std::shared_ptr<TSelf> getOrCreateChild(std::string name);
 
 		template<typename... strings>
-		std::shared_ptr<Domain> getOrCreateChildren(std::string name, strings... names);
+		std::shared_ptr<TSelf> getOrCreateChildren(std::string name, strings... names);
 
 		bool isRoot();
 
-		std::weak_ptr<Domain> getRoot();
+		std::weak_ptr<TSelf> getRoot();
 
-		std::weak_ptr<Domain> getParent();
+		std::weak_ptr<TSelf> getParent();
 
-		std::list<std::weak_ptr<Domain>> getChain();
+		std::list<std::weak_ptr<TSelf>> getChain();
 
 		std::string getName();
 
 		std::string getFullyQualifiedName(const char separator = RELOG_LIB_DOMAIN_HPP_DEFAULT_SEPARATOR, bool reverse = false);
 
-		std::partial_ordering compare(Domain* other);
+		std::partial_ordering compare(TSelf* other);
 
-		std::partial_ordering compare(Domain& other);
+		std::partial_ordering compare(TSelf& other);
 
-		std::partial_ordering compare(std::shared_ptr<Domain> other);
+		std::partial_ordering compare(std::shared_ptr<TSelf> other);
 
-		std::partial_ordering operator<=>(const Domain&) const;
+		std::partial_ordering operator<=>(const TSelf&) const;
 };
 
+template<typename TSelf, typename TDomain>
 class DomainProxy
 {
-		std::shared_ptr<Domain> m_domain;
+		std::shared_ptr<TDomain> m_domain;
 
 	public:
-		DomainProxy(std::shared_ptr<Domain> domain);
+		DomainProxy(std::shared_ptr<TDomain> domain);
 
 		virtual ~DomainProxy();
 
 		template<typename... strings>
-		DomainProxy relative(strings... names);
+		TSelf relative(strings... names);
 
-		DomainProxy operator/(std::string name);
+		TSelf operator/(std::string name);
 
 		bool isRoot();
 
-		DomainProxy getRoot();
+		TSelf getRoot();
 
-		DomainProxy getParent();
+		TSelf getParent();
 
-		std::list<DomainProxy> getChain();
+		std::list<TSelf> getChain();
 
 		std::string getName();
 
 		std::string getFullyQualifiedName(const char separator = RELOG_LIB_DOMAIN_HPP_DEFAULT_SEPARATOR, bool reverse = false);
 
-		std::partial_ordering compare(DomainProxy& other);
+		std::partial_ordering compare(TSelf& other);
 
-		std::partial_ordering operator<=>(const DomainProxy& other) const;
+		std::partial_ordering operator<=>(const TSelf& other) const;
 
-		std::shared_ptr<Domain> unwrap();
+		std::shared_ptr<TDomain> unwrap();
 };
 
 /**
@@ -124,9 +128,10 @@ class DomainProxy
  * Features a single `get` function which gets the nodes from the trees
  * or creates them as needed.
  */
+template<typename TDomainProxy, typename TDomain>
 class DomainOwner
 {
-		std::map<std::string, std::shared_ptr<Domain>> m_domains;
+		std::map<std::string, std::shared_ptr<TDomain>> m_domains;
 
 	public:
 		DomainOwner();
@@ -134,15 +139,30 @@ class DomainOwner
 		virtual ~DomainOwner();
 
 		template<typename... strings>
-		DomainProxy get(std::string name, strings... names);
+		TDomainProxy get(std::string name, strings... names);
 
 	protected:
 		template<typename... strings>
-		std::shared_ptr<Domain> getImpl_(std::shared_ptr<Domain> current, std::string name, strings... names);
+		std::shared_ptr<TDomain> getImpl_(std::shared_ptr<TDomain> current, std::string name, strings... names);
 
-		std::shared_ptr<Domain> getImpl_(std::shared_ptr<Domain> current);
+		std::shared_ptr<TDomain> getImpl_(std::shared_ptr<TDomain> current);
 };
 
-} // namespace relog::lib::domain
+class SimpleDomain final : public Domain<SimpleDomain>
+{
+		using Domain<SimpleDomain>::Domain;
+};
+
+class SimpleDomainProxy final : public DomainProxy<SimpleDomainProxy, SimpleDomain>
+{
+		using DomainProxy<SimpleDomainProxy, SimpleDomain>::DomainProxy;
+};
+
+class SimpleDomainOwner final : public DomainOwner<SimpleDomainProxy, SimpleDomain>
+{
+		using DomainOwner<SimpleDomainProxy, SimpleDomain>::DomainOwner;
+};
+
+} // namespace relog::lib
 
 #endif
