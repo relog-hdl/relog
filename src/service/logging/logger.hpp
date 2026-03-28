@@ -4,6 +4,18 @@
 namespace relog::service::logging
 {
 
+enum log_level
+{
+	DEBUG,
+	INFO,
+	NOTICE,
+	WARNING,
+	ERROR,
+	CRITICAL
+};
+
+typedef enum log_level LogLevel;
+
 class Logger
 {
 };

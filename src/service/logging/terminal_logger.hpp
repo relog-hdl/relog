@@ -2,12 +2,12 @@
 #define RELOG_SERVICE_LOGGING_TERMINAL_LOGGER_HPP
 
 #include "logger.hpp"
-#include "logging_backend.hpp"
+#include "logger_backend.hpp"
 
 namespace relog::service::logging
 {
 
-class TerminalLoggerBackend : public ILoggingBackend
+class TerminalLoggerBackend : public ILoggerBackend
 {
 };
 
