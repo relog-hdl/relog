@@ -7,12 +7,13 @@
 namespace relog::service::logging
 {
 
-class TerminalLoggerBackend : public ILoggerBackend
+class TerminalLoggerBackend final : public ILoggerBackend
 {
 };
 
 class TerminalLogger : public Logger
 {
+		virtual ~TerminalLogger();
 };
 
 } // namespace relog::service::logging

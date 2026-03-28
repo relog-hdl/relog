@@ -18,6 +18,7 @@ typedef enum log_level LogLevel;
 
 class Logger
 {
+		virtual ~Logger();
 };
 
 } // namespace relog::service::logging

@@ -4,8 +4,9 @@
 namespace relog::service::logging
 {
 
-class ILoggerBackend
+struct ILoggerBackend
 {
+		virtual ~ILoggerBackend() = 0;
 };
 
 } // namespace relog::service::logging
