@@ -34,20 +34,13 @@ namespace relog::lib
 template<typename TSelf>
 class Domain
 {
-		bool m_is_root;
+	protected:
+		bool m_is_root = false;
 		std::weak_ptr<TSelf> m_self;
 		std::weak_ptr<TSelf> m_root;
 		std::weak_ptr<TSelf> m_parent;
 		std::map<std::string, std::shared_ptr<TSelf>> m_children;
 		std::string m_name;
-
-	protected:
-		Domain(std::weak_ptr<TSelf> parent, std::string name);
-
-		template<typename... strings>
-		std::shared_ptr<TSelf> getOrCreateChildrenImpl_(std::shared_ptr<TSelf> current, std::string name, strings... names);
-
-		std::shared_ptr<TSelf> getOrCreateChildrenImpl_(std::shared_ptr<TSelf> current);
 
 	public:
 		virtual ~Domain();
@@ -78,11 +71,24 @@ class Domain
 		std::partial_ordering compare(std::shared_ptr<TSelf> other);
 
 		std::partial_ordering operator<=>(const TSelf&) const;
+
+	protected:
+		Domain(std::weak_ptr<TSelf> parent, std::string name);
+
+		template<typename... strings>
+		std::shared_ptr<TSelf> getOrCreateChildrenImpl_(std::shared_ptr<TSelf> current, std::string name, strings... names);
+
+		std::shared_ptr<TSelf> getOrCreateChildrenImpl_(std::shared_ptr<TSelf> current);
+
+		virtual void onCreated();
+
+		void onCreatedImpl_();
 };
 
 template<typename TSelf, typename TDomain>
 class DomainProxy
 {
+	protected:
 		std::shared_ptr<TDomain> m_domain;
 
 	public:
@@ -131,6 +137,7 @@ class DomainProxy
 template<typename TDomainProxy, typename TDomain>
 class DomainOwner
 {
+	protected:
 		std::map<std::string, std::shared_ptr<TDomain>> m_domains;
 
 	public:

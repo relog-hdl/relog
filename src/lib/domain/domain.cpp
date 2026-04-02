@@ -9,13 +9,7 @@ namespace relog::lib
 {
 
 template<typename TSelf>
-Domain<TSelf>::Domain(std::weak_ptr<TSelf> parent, std::string name)
-{
-	m_is_root = false;
-
-	m_parent = parent;
-	m_name = name;
-}
+Domain<TSelf>::Domain(std::weak_ptr<TSelf> parent, std::string name) : m_parent(parent), m_name(name) {}
 
 template<typename TSelf>
 Domain<TSelf>::~Domain() {}
@@ -30,6 +24,8 @@ Domain<TSelf>::createRoot(std::string name)
 	std::shared_ptr<TSelf> domain_ptr = std::shared_ptr<TSelf>(domain);
 	domain->m_self = domain_ptr;
 	domain->m_root = domain_ptr;
+
+	domain->onCreatedImpl_();
 
 	return domain_ptr;
 }
@@ -48,6 +44,8 @@ Domain<TSelf>::getOrCreateChild(std::string name)
 	domain->m_self = domain_ptr;
 
 	m_children[name] = domain_ptr;
+
+	domain->onCreatedImpl_();
 
 	return domain_ptr;
 }
@@ -73,6 +71,19 @@ std::shared_ptr<TSelf>
 Domain<TSelf>::getOrCreateChildrenImpl_(std::shared_ptr<TSelf> current)
 {
 	return current;
+}
+
+template<typename TSelf>
+void
+Domain<TSelf>::onCreated()
+{
+}
+
+template<typename TSelf>
+void
+Domain<TSelf>::onCreatedImpl_()
+{
+	this->onCreated();
 }
 
 template<typename TSelf>
@@ -209,10 +220,7 @@ Domain<TSelf>::operator<=>(const TSelf& other) const
 }
 
 template<typename TSelf, typename TDomain>
-DomainProxy<TSelf, TDomain>::DomainProxy(std::shared_ptr<TDomain> domain)
-{
-	m_domain = domain;
-}
+DomainProxy<TSelf, TDomain>::DomainProxy(std::shared_ptr<TDomain> domain) : m_domain(domain) {}
 
 template<typename TSelf, typename TDomain>
 DomainProxy<TSelf, TDomain>::~DomainProxy() {}
