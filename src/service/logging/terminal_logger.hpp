@@ -2,18 +2,39 @@
 #define RELOG_SERVICE_LOGGING_TERMINAL_LOGGER_HPP
 
 #include "logger.hpp"
-#include "logger_backend.hpp"
+
+#include <cstdio>
 
 namespace relog::service::logging
 {
 
-class TerminalLoggerBackend final : public ILoggerBackend
+class LoggerBackendTerminal final : public ILoggerBackend
 {
+		FILE* m_stream;
+		bool m_flush = false;
+
+	public:
+		LoggerBackendTerminal(FILE* stream);
+
+		LoggerBackendTerminal();
+
+		virtual ~LoggerBackendTerminal();
+
+		void log(std::string plain_message);
+
+		bool getFlush();
+
+		void setFlush(bool flush);
 };
 
-class TerminalLogger : public Logger
+class LoggerFormatterTerminalPlain final : public LoggerFormatter<std::string>
 {
-		virtual ~TerminalLogger();
+	public:
+		LoggerFormatterTerminalPlain();
+
+		~LoggerFormatterTerminalPlain();
+
+		std::string format(LogDomainProxy<std::string> domain, LogLevel level, std::string message) override;
 };
 
 } // namespace relog::service::logging
