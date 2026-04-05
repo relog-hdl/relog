@@ -100,12 +100,12 @@ of which are undetermined at this point.
 
 | Lib      | Location         | Status               |
 |----------|------------------|----------------------|
-| Domain   | `src/lib/domain` | usable, needs polish |
+| Domain   | `src/lib/domain` | usable               |
 | File I/O | `src/lib/io`     | nonexistant          |
 
 | Service               | Location               | Status                  |
 |-----------------------|------------------------|-------------------------|
-| Logging               | `src/service/logging`  | skeleton                |
+| Logging               | `src/service/logging`  | usable                  |
 | Config                | `src/service/config`   | nonexistant             |
 | Source File Tree      | `src/service/codetree` | skeleton, needs rewrite |
 | Compilation File Tree | `src/service/codetree` | skeleton, needs rewrite |
