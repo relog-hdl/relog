@@ -12,9 +12,6 @@ template<typename TSelf>
 Domain<TSelf>::Domain(std::weak_ptr<TSelf> parent, std::string name) : m_parent(parent), m_name(name) {}
 
 template<typename TSelf>
-Domain<TSelf>::~Domain() {}
-
-template<typename TSelf>
 std::shared_ptr<TSelf>
 Domain<TSelf>::createRoot(std::string name)
 {
@@ -223,9 +220,6 @@ template<typename TSelf, typename TDomain>
 DomainProxy<TSelf, TDomain>::DomainProxy(std::shared_ptr<TDomain> domain) : m_domain(domain) {}
 
 template<typename TSelf, typename TDomain>
-DomainProxy<TSelf, TDomain>::~DomainProxy() {}
-
-template<typename TSelf, typename TDomain>
 template<typename... strings>
 TSelf
 DomainProxy<TSelf, TDomain>::relative(strings... names)
@@ -311,9 +305,6 @@ DomainProxy<TSelf, TDomain>::unwrap()
 
 template<typename TDomainProxy, typename TDomain>
 DomainOwner<TDomainProxy, TDomain>::DomainOwner() {}
-
-template<typename TDomainProxy, typename TDomain>
-DomainOwner<TDomainProxy, TDomain>::~DomainOwner() {}
 
 template<typename TDomainProxy, typename TDomain>
 template<typename... strings>

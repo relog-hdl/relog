@@ -43,7 +43,7 @@ class Domain
 		std::string m_name;
 
 	public:
-		virtual ~Domain();
+		virtual ~Domain() = default;
 
 		static std::shared_ptr<TSelf> createRoot(std::string name);
 
@@ -94,7 +94,7 @@ class DomainProxy
 	public:
 		DomainProxy(std::shared_ptr<TDomain> domain);
 
-		virtual ~DomainProxy();
+		virtual ~DomainProxy() = default;
 
 		template<typename... strings>
 		TSelf relative(strings... names);
@@ -143,7 +143,7 @@ class DomainOwner
 	public:
 		DomainOwner();
 
-		virtual ~DomainOwner();
+		virtual ~DomainOwner() = default;
 
 		template<typename... strings>
 		TDomainProxy get(std::string name, strings... names);
