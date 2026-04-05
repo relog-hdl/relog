@@ -1,11 +1,11 @@
-#ifndef RELOG_OPTS_HPP
-#define RELOG_OPTS_HPP
+#ifndef RELOG_BOOTSTRAP_OPTS_HPP
+#define RELOG_BOOTSTRAP_OPTS_HPP
 
 #include <util/aliases.hpp>
 
 #include <getopt.h>
 
-namespace relog::conf
+namespace relog::bootstrap
 {
 
 typedef enum parse_opts_result
@@ -21,6 +21,6 @@ extern struct option longopts[];
 ParseOptsResult
 parse_opts(int argc, char* argv[]);
 
-} // namespace relog::conf
+} // namespace relog::bootstrap
 
 #endif

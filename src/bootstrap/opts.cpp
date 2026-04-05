@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-namespace relog::conf
+namespace relog::bootstrap
 {
 
 // clang-format off
@@ -114,4 +114,4 @@ parse_opts(int argc, char* argv[])
 	return OK;
 }
 
-} // namespace relog::conf
+} // namespace relog::bootstrap

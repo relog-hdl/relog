@@ -16,5 +16,5 @@ target_link_libraries(rlc -lm)
 
 target_sources(rlc
 	PRIVATE
-	src/rlc.cpp
+	src/bootstrap/bootstrap.cpp
 )
