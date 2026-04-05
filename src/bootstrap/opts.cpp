@@ -1,5 +1,7 @@
 #include "opts.hpp"
 
+#include <bootstrap/bootstrap.hpp>
+
 #include <getopt.h>
 
 #include <cstdio>
@@ -38,12 +40,12 @@ parse_opts(int argc, char* argv[])
 		if(option == -1)
 			break;
 
-		printf("Parsing option: %c (%d)\n", option, option);
+		l.info("Parsing option: %c (%d)", option, option);
 
 		switch(option)
 		{
 			case 0:
-				printf("Parsing long option: %s\n", longopts[option_index].name);
+				l.info("Parsing long option: %s", longopts[option_index].name);
 				if(longopts[option_index].has_arg != no_argument)
 					arg_reparse = true;
 				if(longopts[option_index].flag != NULL)
@@ -57,10 +59,10 @@ parse_opts(int argc, char* argv[])
 				cont = true;
 				break;
 			case '?':
-				printf("Argument error while parsing option: %d\n", option);
+				l.error("Argument error while parsing option: %d", option);
 				return ARGUMENT_ERROR;
 			default:
-				printf("Unknown error while parsing option: %d\n(Option functionality likely not implemented)\n", option);
+				l.error("Unknown error while parsing option: %d\n(Option functionality likely not implemented)", option);
 				return UNKNOWN_ERROR;
 		}
 
@@ -101,7 +103,7 @@ parse_opts(int argc, char* argv[])
 			}
 
 			for(unsigned int i = 0; i < optarg_override_length; i++)
-				printf("Parsed argument %u: '%s'\n", i + 1, optarg_override[i]);
+				l.info("Parsed argument %u: '%s'", i + 1, optarg_override[i]);
 		}
 
 		free(optarg_override);
