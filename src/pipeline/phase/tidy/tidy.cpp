@@ -1,5 +1,6 @@
 #include "tidy.hpp"
 
-namespace relog
+namespace relog::tidy
 {
-}
+
+} // namespace relog::tidy

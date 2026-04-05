@@ -1,5 +1,6 @@
 #include "parse.hpp"
 
-namespace relog
+namespace relog::parse
 {
-}
+
+} // namespace relog::parse

@@ -1,5 +1,6 @@
 #include "reform.hpp"
 
-namespace relog
+namespace relog::reform
 {
-}
+
+} // namespace relog::reform

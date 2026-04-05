@@ -1,5 +1,6 @@
 #include "lex.hpp"
 
-namespace relog
+namespace relog::lex
 {
-}
+
+} // namespace relog::lex
