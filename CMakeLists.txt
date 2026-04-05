@@ -9,7 +9,12 @@ add_executable(rlc)
 
 target_include_directories(rlc PRIVATE src)
 
-#target_compile_options(rlc PRIVATE -Wall -Wextra -Werror -pedantic)
+target_compile_options(rlc PRIVATE -Wall -Wcast-align
+	-Wextra -Wfloat-equal -Wformat-nonliteral -Wformat-security
+	-Wformat=2 -Winit-self -Wmissing-declarations
+	-Wmissing-format-attribute -Wmissing-include-dirs
+	-Wmissing-noreturn -Wpointer-arith -Wshadow
+	-Wswitch-default -Wwrite-strings -Werror -pedantic -fPIC)
 
 # Link math lib
 target_link_libraries(rlc -lm)
