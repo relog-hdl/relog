@@ -3,12 +3,6 @@
 
 #include <service/logging/log_domain.hpp>
 #include <service/logging/log_level.hpp>
-#include <service/logging/logger_backend.hpp>
-#include <service/logging/logger_formatter.hpp>
-
-#include <lib/domain/domain.hpp>
-
-#include <string>
 
 namespace relog::service::logging
 {
