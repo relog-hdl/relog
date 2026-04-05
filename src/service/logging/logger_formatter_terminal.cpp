@@ -31,6 +31,8 @@ LoggerFormatterTerminalPlain::format(LogDomainProxy<std::string> domain, LogLeve
 		case CRITICAL:
 			level_str = "CRT";
 			break;
+		default:
+			level_str = "";
 	}
 
 	return level_str + " | " + domain.getFullyQualifiedName() + " - " + message + '\n';
