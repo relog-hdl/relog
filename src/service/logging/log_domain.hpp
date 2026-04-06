@@ -1,6 +1,11 @@
 #ifndef RELOG_SERVICE_LOGGING_LOG_DOMAIN_HPP
 #define RELOG_SERVICE_LOGGING_LOG_DOMAIN_HPP
 
+#include "log_domain.h"
+
+#include <service/logging/logger_backend.h>
+#include <service/logging/logger_formatter.h>
+
 #include <service/logging/log_level.hpp>
 
 #include <lib/domain/domain.hpp>
@@ -11,22 +16,6 @@
 
 namespace relog::service::logging
 {
-
-/* Forward declarations for classes of this header */
-template<typename TMessage>
-class LogDomain;
-
-template<typename TMessage>
-class LogDomainProxy;
-
-template<typename TMessage>
-class LogDomainOwner;
-
-/* Forward declarations for domain-attached objects */
-struct ILoggerBackend;
-
-template<typename TMessage>
-class LoggerFormatter;
 
 template<typename TMessage>
 class LogDomain final : public relog::lib::Domain<LogDomain<TMessage>>

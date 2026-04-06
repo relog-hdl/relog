@@ -1,6 +1,8 @@
 #ifndef RELOG_SERVICE_LOGGING_LOGGER_FORMATTER_TERMINAL_HPP
 #define RELOG_SERVICE_LOGGING_LOGGER_FORMATTER_TERMINAL_HPP
 
+#include "logger_formatter_terminal.h"
+
 #include <service/logging/log_domain.hpp>
 #include <service/logging/log_level.hpp>
 #include <service/logging/logger_formatter.hpp>

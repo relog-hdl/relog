@@ -1,6 +1,8 @@
 #ifndef RELOG_SERVICE_LOGGING_LOGGER_HPP
 #define RELOG_SERVICE_LOGGING_LOGGER_HPP
 
+#include "logger.h"
+
 #include <service/logging/log_domain.hpp>
 #include <service/logging/log_level.hpp>
 

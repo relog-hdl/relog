@@ -1,6 +1,8 @@
 #ifndef RELOG_SERVICE_LOGGING_LOGGER_BACKEND_HPP
 #define RELOG_SERVICE_LOGGING_LOGGER_BACKEND_HPP
 
+#include "logger_backend.h"
+
 #include <string>
 
 namespace relog::service::logging
