@@ -1,6 +1,8 @@
 #ifndef RELOG_LIB_DOMAIN_DOMAIN_HPP
 #define RELOG_LIB_DOMAIN_DOMAIN_HPP
 
+#include "domain.h"
+
 #include <list>
 #include <map>
 #include <memory>
