@@ -26,7 +26,7 @@ init_logging()
 	auto formatter = std::make_shared<relog::service::logging::LoggerFormatterTerminalPlain>();
 
 	r.changePipeline(backend, formatter);
-	r.setThreshold(relog::service::logging::LogLevel::INFO);
+	r.setThreshold(relog::service::logging::LogLevel::FLOW);
 }
 
 } // namespace relog::bootstrap
@@ -37,7 +37,10 @@ main(int argc, char* argv[])
 	using relog::bootstrap::l;
 
 	relog::bootstrap::init_logging();
+	l.flow("Initialized logging.");
+
 	relog::bootstrap::parse_opts(argc, argv);
+	l.flow("Parsed options.");
 
 	return 0;
 }
