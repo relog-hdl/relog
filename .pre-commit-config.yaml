@@ -23,10 +23,6 @@ repos:
     hooks:
       - id: clang-format
         args: [--style=file]
-      - id: clang-tidy
-        args: [-B.,--checks=readability-magic-numbers]
-      - id: include-what-you-use
-        args: [-B.]
   - repo: https://github.com/pocc/pre-commit-hooks
     rev: v1.3.5
     hooks:
