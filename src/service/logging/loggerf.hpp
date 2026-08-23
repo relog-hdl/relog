@@ -3,9 +3,9 @@
 
 #include "logger.h"
 
-#include <service/logging/log_domain.hpp>
+#include <service/logging/log_domain.hxx>
 #include <service/logging/log_level.hpp>
-#include <service/logging/logger.hpp>
+#include <service/logging/logger.hxx>
 
 #include <string>
 

@@ -21,5 +21,9 @@ target_link_libraries(rlc -lm)
 
 target_sources(rlc
 	PRIVATE
+	src/service/logging/logger_backend_terminal.cpp
+	src/service/logging/logger_formatter_terminal.cpp
+	src/service/logging/loggerf.cpp
+	src/bootstrap/opts.cpp
 	src/bootstrap/bootstrap.cpp
 )

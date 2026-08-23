@@ -1,7 +1,7 @@
 #ifndef RELOG_BOOTSTRAP_BOOTSTRAP_HPP
 #define RELOG_BOOTSTRAP_BOOTSTRAP_HPP
 
-#include <service/logging/log_domain.hpp>
+#include <service/logging/log_domain.hxx>
 #include <service/logging/loggerf.hpp>
 
 #include <string>

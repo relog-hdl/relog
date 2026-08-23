@@ -1,7 +1,7 @@
 #ifndef RELOG_SERVICE_LOGGING_LOGGER_BACKEND_TERMINAL_HPP
 #define RELOG_SERVICE_LOGGING_LOGGER_BACKEND_TERMINAL_HPP
 
-#include <service/logging/log_domain.hpp>
+#include <service/logging/log_domain.hxx>
 #include <service/logging/log_level.hpp>
 #include <service/logging/logger_backend.hpp>
 

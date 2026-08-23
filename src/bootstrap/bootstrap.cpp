@@ -1,14 +1,14 @@
 #include "bootstrap.hpp"
 
-#include <bootstrap/opts.cpp>
+#include <bootstrap/opts.hpp>
 
-#include <service/logging/log_domain.cpp>
-#include <service/logging/logger.cpp>
-#include <service/logging/logger_backend_terminal.cpp>
-#include <service/logging/logger_formatter_terminal.cpp>
-#include <service/logging/loggerf.cpp>
+#include <service/logging/log_domain.hxx>
+#include <service/logging/logger.hpp>
+#include <service/logging/logger_backend_terminal.hpp>
+#include <service/logging/logger_formatter_terminal.hpp>
+#include <service/logging/loggerf.hpp>
 
-#include <lib/domain/domain.cpp>
+#include <lib/domain/domain.hpp>
 
 #include <memory>
 

@@ -3,7 +3,7 @@
 
 #include "logger.h"
 
-#include <service/logging/log_domain.hpp>
+#include <service/logging/log_domain.hxx>
 #include <service/logging/log_level.hpp>
 
 namespace relog::service::logging

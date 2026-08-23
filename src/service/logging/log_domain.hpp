@@ -3,12 +3,12 @@
 
 #include "log_domain.h"
 
-#include <service/logging/logger_backend.h>
-#include <service/logging/logger_formatter.h>
+#include <service/logging/logger_backend.hpp>
+#include <service/logging/logger_formatter.hpp>
 
 #include <service/logging/log_level.hpp>
 
-#include <lib/domain/domain.hpp>
+#include <lib/domain/domain.hxx>
 
 #include <cstdbool>
 #include <memory>

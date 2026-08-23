@@ -1,7 +1,7 @@
-#include "logger.hpp"
+#ifndef RELOG_SERVICE_LOGGING_LOGGER_HXX
+#define RELOG_SERVICE_LOGGING_LOGGER_HXX
 
-#include <cstdio>
-#include <memory>
+#include "logger.hpp"
 
 namespace relog::service::logging
 {
@@ -80,3 +80,5 @@ Logger<TMessage>::critical(TMessage message)
 }
 
 } // namespace relog::service::logging
+
+#endif

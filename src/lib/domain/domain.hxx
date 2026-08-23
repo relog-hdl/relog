@@ -1,3 +1,6 @@
+#ifndef RELOG_LIB_DOMAIN_DOMAIN_HXX
+#define RELOG_LIB_DOMAIN_DOMAIN_HXX
+
 #include "domain.hpp"
 
 #include <list>
@@ -335,3 +338,5 @@ DomainOwner<TDomainProxy, TDomain>::getImpl_(std::shared_ptr<TDomain> current)
 }
 
 } // namespace relog::lib
+
+#endif

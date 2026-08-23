@@ -1,3 +1,6 @@
+#ifndef RELOG_SERVICE_LOGGING_LOG_DOMAIN_HXX
+#define RELOG_SERVICE_LOGGING_LOG_DOMAIN_HXX
+
 #include "log_domain.hpp"
 
 namespace relog::service::logging
@@ -94,3 +97,5 @@ LogDomainProxy<TMessage>::log(LogDomainProxy<TMessage> domain, LogLevel level, T
 }
 
 } // namespace relog::service::logging
+
+#endif

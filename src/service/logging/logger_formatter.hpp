@@ -1,7 +1,8 @@
 #ifndef RELOG_SERVICE_LOGGING_LOGGER_FORMATTER_HPP
 #define RELOG_SERVICE_LOGGING_LOGGER_FORMATTER_HPP
 
-#include <service/logging/log_domain.hpp>
+#include <service/logging/log_domain.hxx>
+#include <service/logging/log_level.hpp>
 
 namespace relog::service::logging
 {

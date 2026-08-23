@@ -3,7 +3,7 @@
 
 #include "logger_formatter_terminal.h"
 
-#include <service/logging/log_domain.hpp>
+#include <service/logging/log_domain.hxx>
 #include <service/logging/log_level.hpp>
 #include <service/logging/logger_formatter.hpp>
 
