@@ -1,29 +1,9 @@
 cmake_minimum_required(VERSION 3.20)
-project(rlc)
+project(relog)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb3")
-set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(rlc)
-
-target_include_directories(rlc PRIVATE src)
-
-target_compile_options(rlc PRIVATE -Wall -Wcast-align
-	-Wextra -Wfloat-equal -Wformat-nonliteral -Wformat-security
-	-Wformat=2 -Winit-self -Wmissing-declarations
-	-Wmissing-format-attribute -Wmissing-include-dirs
-	-Wmissing-noreturn -Wpointer-arith -Wshadow
-	-Wswitch-default -Wwrite-strings -Werror -pedantic -fPIC)
-
-# Link math lib
-target_link_libraries(rlc -lm)
-
-target_sources(rlc
-	PRIVATE
-	src/service/logging/logger_backend_terminal.cpp
-	src/service/logging/logger_formatter_terminal.cpp
-	src/service/logging/loggerf.cpp
-	src/bootstrap/opts.cpp
-	src/bootstrap/bootstrap.cpp
-)
+add_subdirectory(librelog)
+add_subdirectory(rlc)

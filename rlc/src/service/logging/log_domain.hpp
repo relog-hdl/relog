@@ -10,7 +10,6 @@
 
 #include <lib/domain/domain.hxx>
 
-#include <cstdbool>
 #include <memory>
 #include <set>
 

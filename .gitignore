@@ -1,13 +1,27 @@
+# CMake
+
 CMakeFiles
+**/CMakeFiles
+
 CMakeCache.txt
+**/CMakeCache.txt
+
 *.cmake
+**/*.cmake
+
 Makefile
-compile_commands.json
+**/Makefile
+
 _cmake_configure_lock
 _cmake_configure_try_lock
+
+compile_commands.json
 
 .vscode
 .vscode/*
 .cache
 
-rlc
+# Build files
+
+rlc/rlc
+librelog/librelog.a

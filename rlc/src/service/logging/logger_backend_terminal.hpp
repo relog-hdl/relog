@@ -5,7 +5,6 @@
 #include <service/logging/log_level.hpp>
 #include <service/logging/logger_backend.hpp>
 
-#include <cstdbool>
 #include <cstdio>
 #include <string>
 
