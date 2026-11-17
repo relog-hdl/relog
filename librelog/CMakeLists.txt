@@ -1,4 +1,5 @@
 project(librelog VERSION 0.0.1)
+set(PROJECT_VERSION_TAG "dev")
 
 add_library(${PROJECT_NAME} STATIC)
 
@@ -24,4 +25,36 @@ target_sources(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
 	PUBLIC
 		m # Math lib
+)
+
+set(PROJECT_VERSION_STRING "${PROJECT_VERSION}")
+if(PROJECT_VERSION_TAG)
+	set(PROJECT_VERSION_STRING "${PROJECT_VERSION_STRING}-${PROJECT_VERSION_TAG}")
+endif()
+
+set(PROJECT_GIT_HASH "unknown")
+set(PROJECT_GIT_BRANCH "unknown")
+find_package(Git QUIET)
+if(GIT_FOUND)
+    execute_process(
+        COMMAND "${GIT_EXECUTABLE}" rev-parse --short HEAD
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+        OUTPUT_VARIABLE PROJECT_GIT_HASH
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
+    )
+
+    execute_process(
+        COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+        OUTPUT_VARIABLE PROJECT_GIT_BRANCH
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
+    )
+endif()
+
+configure_file(
+	${PROJECT_SOURCE_DIR}/include/librelog/version.h.in
+	${PROJECT_SOURCE_DIR}/include/librelog/version.h
+	@ONLY
 )

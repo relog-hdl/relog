@@ -9,6 +9,8 @@
 #include <service/logging/loggerf.hpp>
 
 #include <lib/domain/domain.hpp>
+#include <rlc/version.h>
+#include <librelog/version.h>
 
 #include <memory>
 
@@ -37,7 +39,8 @@ main(int argc, char* argv[])
 	using relog::bootstrap::l;
 
 	relog::bootstrap::init_logging();
-	l.flow("Initialized logging.");
+	l.info("%s", RELOG_PROJECT_SUMMARY);
+	l.info("%s", LIBRELOG_PROJECT_SUMMARY);
 
 	relog::bootstrap::parse_opts(argc, argv);
 	l.flow("Parsed options.");
