@@ -45,7 +45,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wcast-align
 
 target_sources(${PROJECT_NAME}
 	PRIVATE
-#	${LEXER_PATH_TMPLT}.c
+	${LEXER_PATH_TMPLT}.c
 #	${PARSER_PATH_TMPLT}.c
 	src/service/logging/logger_backend_terminal.cpp
 	src/service/logging/logger_formatter_terminal.cpp
