@@ -29,3 +29,7 @@ librelog/librelog.a
 rlc/include/rlc/version.h
 librelog/include/librelog/version.h
 
+# Created by flex
+**/*.l.c
+**/*.l.h
+

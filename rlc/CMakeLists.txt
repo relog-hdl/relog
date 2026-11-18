@@ -1,6 +1,21 @@
 project(rlc VERSION 0.0.1)
 set(PROJECT_VERSION_TAG "dev")
 
+find_package(FLEX REQUIRED)
+
+set(PIPELINE_DIR "${PROJECT_SOURCE_DIR}/src/pipeline")
+set(PIPELINE_PHASE_DIR "${PIPELINE_DIR}/phase")
+set(LEX_PHASE_DIR "${PIPELINE_PHASE_DIR}/lex")
+
+set(LEXER_PATH_TMPLT "${LEX_PHASE_DIR}/lexer.l")
+
+flex_target(
+	lexer
+	"${LEXER_PATH_TMPLT}"
+	"${LEXER_PATH_TMPLT}.c"
+	DEFINES_FILE "${LEXER_PATH_TMPLT}.h"
+)
+
 add_executable(${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME}
@@ -18,6 +33,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wcast-align
 
 target_sources(${PROJECT_NAME}
 	PRIVATE
+#	${LEXER_PATH_TMPLT}.c
 	src/service/logging/logger_backend_terminal.cpp
 	src/service/logging/logger_formatter_terminal.cpp
 	src/service/logging/loggerf.cpp
