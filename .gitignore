@@ -33,3 +33,6 @@ librelog/include/librelog/version.h
 **/*.l.c
 **/*.l.h
 
+# Created by bison
+**/*.y.c
+**/*.y.h
