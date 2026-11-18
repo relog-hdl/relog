@@ -1,13 +1,16 @@
 project(rlc VERSION 0.0.1)
 set(PROJECT_VERSION_TAG "dev")
 
-find_package(FLEX REQUIRED)
-find_package(BISON REQUIRED)
-
 set(PIPELINE_DIR "${PROJECT_SOURCE_DIR}/src/pipeline")
 set(PIPELINE_PHASE_DIR "${PIPELINE_DIR}/phase")
 set(LEX_PHASE_DIR "${PIPELINE_PHASE_DIR}/lex")
 set(PARSE_PHASE_DIR "${PIPELINE_PHASE_DIR}/parse")
+
+
+### Lexer & parser
+
+find_package(FLEX REQUIRED)
+find_package(BISON REQUIRED)
 
 set(LEXER_PATH_TMPLT "${LEX_PHASE_DIR}/lexer.l")
 set(PARSER_PATH_TMPLT "${PARSE_PHASE_DIR}/parser.y")
@@ -28,6 +31,9 @@ bison_target(
 
 add_flex_bison_dependency(lexer parser)
 
+
+### Executable: 'rlc'
+
 add_executable(${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME}
@@ -36,22 +42,38 @@ target_include_directories(${PROJECT_NAME}
 		${PROJECT_SOURCE_DIR}/src
 )
 
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wcast-align
-	-Wextra -Wfloat-equal -Wformat-nonliteral -Wformat-security
-	-Wformat=2 -Winit-self -Wmissing-declarations
-	-Wmissing-format-attribute -Wmissing-include-dirs
-	-Wmissing-noreturn -Wpointer-arith -Wshadow
-	-Wswitch-default -Wwrite-strings -Werror -pedantic -fPIC)
+target_compile_options(${PROJECT_NAME}
+	PRIVATE
+		-Wall
+		-Wcast-align
+		-Wextra
+		-Wfloat-equal
+		-Wformat-nonliteral
+		-Wformat-security
+		-Wformat=2
+		-Winit-self
+		-Wmissing-declarations
+		-Wmissing-format-attribute
+		-Wmissing-include-dirs
+		-Wmissing-noreturn
+		-Wpointer-arith
+		-Wshadow
+		-Wswitch-default
+		-Wwrite-strings
+		-Werror
+		-pedantic
+		-fPIC
+)
 
 target_sources(${PROJECT_NAME}
 	PRIVATE
-	${LEXER_PATH_TMPLT}.c
-	${PARSER_PATH_TMPLT}.c
-	src/service/logging/logger_backend_terminal.cpp
-	src/service/logging/logger_formatter_terminal.cpp
-	src/service/logging/loggerf.cpp
-	src/bootstrap/opts.cpp
-	src/bootstrap/bootstrap.cpp
+		${LEXER_PATH_TMPLT}.c
+		${PARSER_PATH_TMPLT}.c
+		src/service/logging/logger_backend_terminal.cpp
+		src/service/logging/logger_formatter_terminal.cpp
+		src/service/logging/loggerf.cpp
+		src/bootstrap/opts.cpp
+		src/bootstrap/bootstrap.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -59,6 +81,9 @@ target_link_libraries(${PROJECT_NAME}
 		librelog
 		m # Math lib
 )
+
+
+### Versioning
 
 set(PROJECT_VERSION_STRING "${PROJECT_VERSION}")
 if(PROJECT_VERSION_TAG)
