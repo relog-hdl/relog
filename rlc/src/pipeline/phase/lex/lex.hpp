@@ -1,9 +1,0 @@
-#ifndef RELOG_PIPELINE_PHASE_LEX_LEX_HPP
-#define RELOG_PIPELINE_PHASE_LEX_LEX_HPP
-
-namespace relog::lex
-{
-
-} // namespace relog::lex
-
-#endif
