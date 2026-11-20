@@ -18,15 +18,15 @@ set(PARSER_PATH_TMPLT "${PARSE_PHASE_DIR}/parser.y")
 flex_target(
 	lexer
 	"${LEXER_PATH_TMPLT}"
-	"${LEXER_PATH_TMPLT}.c"
-	DEFINES_FILE "${LEXER_PATH_TMPLT}.h"
+	"${LEXER_PATH_TMPLT}.cpp"
+	DEFINES_FILE "${LEXER_PATH_TMPLT}.hpp"
 )
 
 bison_target(
 	parser
 	"${PARSER_PATH_TMPLT}"
-	"${PARSER_PATH_TMPLT}.c"
-	DEFINES_FILE "${PARSER_PATH_TMPLT}.h"
+	"${PARSER_PATH_TMPLT}.cpp"
+	DEFINES_FILE "${PARSER_PATH_TMPLT}.hpp"
 )
 
 add_flex_bison_dependency(lexer parser)
@@ -67,8 +67,8 @@ target_compile_options(${PROJECT_NAME}
 
 target_sources(${PROJECT_NAME}
 	PRIVATE
-		${LEXER_PATH_TMPLT}.c
-		${PARSER_PATH_TMPLT}.c
+		${LEXER_PATH_TMPLT}.cpp
+		${PARSER_PATH_TMPLT}.cpp
 		src/service/logging/logger_backend_terminal.cpp
 		src/service/logging/logger_formatter_terminal.cpp
 		src/service/logging/loggerf.cpp

@@ -35,8 +35,12 @@ librelog/include/librelog/version.h
 
 # Created by flex
 **/*.l.c
+**/*.l.cpp
 **/*.l.h
+**/*.l.hpp
 
 # Created by bison
 **/*.y.c
+**/*.y.cpp
 **/*.y.h
+**/*.y.hpp
