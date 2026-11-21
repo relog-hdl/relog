@@ -16,9 +16,9 @@ however, is as follows.
 ```
 :                                                                             :
 :                 |-------|-------|-------------|-------|                     :
-:   Microphases   |   1   |   2   |     ...     |   N   |                     :
+: [ Microphases ] |   1   |   2   |     ...     |   N   |                     :
 :                 |-------|-------|-------------|-------|                     :
-:                       '                         '                           :
+:   (Optional)          '                         '                           :
 :                            '               '                                :
 :                   |----------\------------\-------------\--------------|    :
 :        Phases     |    Lex    \   Parse    \   Reform    \    Tidy     |    :
@@ -47,15 +47,15 @@ however, is as follows.
 
                |---------|  |--------|  |-------------|  |------------------|  
     Services   | Logging |  | Config |  | Source Code |  | Compilation Code |  
-	           |         |  |        |  |    Tree     |  |       Tree       |  
+               |         |  |        |  |    Tree     |  |       Tree       |  
                |---------|  |--------|  |-------------|  |------------------|  
 
                |--------|  |----------|  
-	     Lib   | Domain |  | File I/O |  
+         Lib   | Domain |  | File I/O |  
                |--------|  |----------|  
 
 
-		Util            (only things which should have been std::x)  
+		Util        (only things which should really have been std::x)  
 
 ```
 
@@ -112,8 +112,8 @@ of which are undetermined at this point.
 
 | Application | Location        | Status\*    |
 |-------------|-----------------|-------------|
-| Bootstrap   | `src/bootstrap` | nonexistant |
-| Pipeline    | `src/pipeline`  | nonexistant |
+| Bootstrap   | `src/bootstrap` | preliminary |
+| Pipeline    | `src/pipeline`  | preliminary |
 
 \*status of applications indicates the state of the control flow code, and not
 of individual components which comprise the application and are invoked in the
@@ -125,8 +125,8 @@ control flow
 
 | Phase  | Location\*                  | Status      |
 |--------|-----------------------------|-------------|
-| Lex    | `src/pipeline/phase/lex`    | nonexistant |
-| Parse  | `src/pipeline/phase/parse`  | nonexistant |
+| Lex    | `src/pipeline/phase/lex`    | preliminary |
+| Parse  | `src/pipeline/phase/parse`  | preliminary |
 | Reform | `src/pipeline/phase/reform` | nonexistant |
 | Tidy   | `src/pipeline/phase/tidy`   | nonexistant |
 
