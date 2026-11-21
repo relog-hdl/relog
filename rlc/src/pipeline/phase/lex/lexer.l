@@ -100,9 +100,7 @@ module/{TS} {
 	return Parser::make_semicolon();
 }
 
-{WSNL} {
-	l.flow("WSNL");
-}
+{WSNL} {}
 
 . {
 	l.warning("unknown character");

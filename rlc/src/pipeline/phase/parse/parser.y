@@ -42,8 +42,8 @@
 	using namespace relog::pipeline::parse;
 
 	static Parser::symbol_type yylex(Lexer &lexer) {
-        return lexer.get_next_token();
-    }
+		return lexer.get_next_token();
+	}
 }
 
 %lex-param { relog::pipeline::lex::Lexer &lexer }
@@ -81,73 +81,138 @@
 
 %token comma semicolon;
 
-%start program
+%type <std::string> type
+
+%start design
 
 %%
 
-program: module_decl_list
-       | %empty
-	   ;
+design				: module_decl_list
+						{
+							l.flow("design: module_decl_list");
+						}
+	   				| %empty
+						{
+							l.flow("design: %%empty");
+						}
+	   				;
 
-module_decl_list: module_decl
+module_decl_list	: module_decl
+						{
+							l.flow("module_decl_list: (start)");
+						}
+					| module_decl_list module_decl
+						{
+							l.flow("module_decl_list: (continuation)");
+						}
+					;
+
+module_decl			: module identifier lparen rparen lcurly module_body rcurly
+						{
+							l.flow("module_decl: (empty port list) %s", $2.c_str());
+						}
+		   			| module identifier lparen module_port_list rparen lcurly module_body rcurly
+						{
+							l.flow("module_decl: (non-empty port list) %s", $2.c_str());
+						}
+		   			;
+
+module_port_list	: module_port
+						{
+							l.flow("module_port_list: (start)");
+						}
+					| module_port_list comma module_port
+						{
+							l.flow("module_port_list: (continuation)");
+						}
+					;
+
+module_port			: net_direction identifier
+						{
+							l.flow("module_port: (untyped) %s %s", $1.c_str(), $2.c_str());
+						}
+		   			| net_direction net_type identifier
+						{
+							l.flow("module_port: (net type) %s %s %s", $1.c_str(), $2.c_str(), $3.c_str());
+						}
+					| net_direction type identifier
+						{
+							l.flow("module_port: (non-net type) %s %s %s", $1.c_str(), $2.c_str(), $3.c_str());
+						}
+		   			;
+
+module_body			: statement_list
+						{
+							l.flow("module_body: statement_list");
+						}
+		   			| %empty
+						{
+							l.flow("module_body: %%empty");
+						}
+		   			;
+
+statement_list		: statement
+						{
+							l.flow("statement_list: (start)");
+						}
+			  		| statement_list statement
+						{
+							l.flow("statement_list: (continuation)");
+						}
+			  		;
+
+statement			: statement_named_ref_net_decl
+						{
+							l.flow("statement: statement_named_ref_net_decl");
+						}
+		 			| statement_named_ref_decl
+						{
+							l.flow("statement: statement_named_ref_decl");
+						}
+		 			| statement_assignment
+						{
+							l.flow("statement: statement_assignment");
+						}
+		 			;
+
+statement_named_ref_net_decl		: net_type statement_named_ref_net_decl_list semicolon
+									;
+
+statement_named_ref_net_decl_list	: identifier
+								 	| identifier opLtDash expr
+								 	| statement_named_ref_net_decl_list comma identifier
+								 	| statement_named_ref_net_decl_list comma identifier opLtDash expr
+								 	;
+
+statement_named_ref_decl			: type statement_named_ref_decl_list semicolon;
+
+statement_named_ref_decl_list		: identifier
+							 		| identifier opEq expr
+							 		| statement_named_ref_decl_list comma identifier
+							 		| statement_named_ref_decl_list comma identifier opEq expr
+							 		;
+
+statement_assignment				: identifier opLtDash expr semicolon
+									;
+
+expr			: expr_named_ref
 					{
-						l.flow("module_decl_list start");
-					}
-                | module_decl_list module_decl
-					{
-						l.flow("module_decl_list continuation");
+						l.flow("expr: expr_named_ref");
 					}
 				;
 
-module_decl: module identifier lparen rparen lcurly module_body rcurly
-           | module identifier lparen module_port_list rparen lcurly module_body rcurly
-		   ;
-
-module_port_list: module_port
-                | module_port_list comma module_port
+expr_named_ref	: identifier
+					{
+						l.flow("expr_named_ref: %s", $1.c_str());
+					}
 				;
 
-module_port: net_direction identifier
-           | net_direction net_type identifier
-           | net_direction type identifier
-		   ;
-
-module_body: statement_list
-           | %empty
-		   ;
-
-statement_list: statement
-              | statement_list statement
-			  ;
-
-statement: statement_named_ref_net_decl
-         | statement_named_ref_decl
-		 | statement_assignment
-		 ;
-
-statement_named_ref_net_decl: net_type statement_named_ref_net_decl_list semicolon;
-
-statement_named_ref_net_decl_list: identifier
-                                 | identifier opLtDash expr
-                                 | statement_named_ref_net_decl_list comma identifier
-								 | statement_named_ref_net_decl_list comma identifier opLtDash expr
-                                 ;
-
-statement_named_ref_decl: type statement_named_ref_decl_list semicolon;
-
-statement_named_ref_decl_list: identifier
-                             | identifier opEq expr
-                             | statement_named_ref_decl_list comma identifier
-							 | statement_named_ref_decl_list comma identifier opEq expr
-							 ;
-
-statement_assignment: identifier opLtDash expr semicolon;
-
-expr: expr_named_ref;
-
-expr_named_ref: identifier;
-
-type: identifier;
+type			: identifier
+					{
+						$$ = $1;
+						l.flow("type: %s", $1.c_str());
+					}
+				;
 
 %%
 
