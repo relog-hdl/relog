@@ -44,3 +44,6 @@ librelog/include/librelog/version.h
 **/*.y.cpp
 **/*.y.h
 **/*.y.hpp
+
+# Test files
+*.rlt
