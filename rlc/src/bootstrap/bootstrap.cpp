@@ -10,6 +10,7 @@
 
 #include <lib/domain/domain.hpp>
 #include <rlc/version.h>
+
 #include <librelog/version.h>
 
 #include <memory>
