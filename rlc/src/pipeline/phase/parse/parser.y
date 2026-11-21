@@ -34,9 +34,9 @@
 
 %code top
 {
-	#include <pipeline/phase/lex/lexer.h>
+	#include <pipeline/phase/lex/lexer.hpp>
 	#include <pipeline/phase/parse/parser.y.hpp>
-	#include <pipeline/phase/parse/parser.h>
+	#include <pipeline/phase/parse/parser.hpp>
 
 	using relog::pipeline::lex::Lexer;
 	using namespace relog::pipeline::parse;

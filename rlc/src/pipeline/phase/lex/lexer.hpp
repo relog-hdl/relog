@@ -5,8 +5,8 @@
  * (https://github.com/ezaquarii/bison-flex-cpp-example)
  */
 
-#ifndef RELOG_PIPELINE_PHASE_LEX_LEXER_H
-#define RELOG_PIPELINE_PHASE_LEX_LEXER_H
+#ifndef RELOG_PIPELINE_PHASE_LEX_LEXER_HPP
+#define RELOG_PIPELINE_PHASE_LEX_LEXER_HPP
 
 #include <pipeline/pipeline.hpp>
 
@@ -15,7 +15,7 @@
 
 // clang-format off
 #include <pipeline/phase/parse/parser.y.hpp> // this is needed for symbol_type
-#include <pipeline/phase/parse/parser.h>
+#include <pipeline/phase/parse/parser.hpp>
 
 /**
  * Generated Flex class name is yyFlexLexer by default. If we want to use more flex-generated

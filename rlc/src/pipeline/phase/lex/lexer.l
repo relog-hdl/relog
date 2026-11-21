@@ -10,7 +10,7 @@
 	#pragma GCC diagnostic ignored "-Wunused-function"
 	#pragma GCC diagnostic ignored "-Wsuggest-attribute=noreturn"
 
-	#include <pipeline/phase/lex/lexer.h>
+	#include <pipeline/phase/lex/lexer.hpp>
 	#include <pipeline/phase/parse/parser.y.hpp>
 
 	#define yyterminate() return relog::pipeline::parse::Parser::make_END();

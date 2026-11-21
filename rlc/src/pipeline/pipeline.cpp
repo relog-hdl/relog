@@ -1,7 +1,7 @@
 #include "pipeline.hpp"
 
-#include <pipeline/phase/lex/lexer.h>
-#include <pipeline/phase/parse/parser.h>
+#include <pipeline/phase/lex/lexer.hpp>
+#include <pipeline/phase/parse/parser.hpp>
 
 #include <service/logging/log_domain.hxx>
 #include <service/logging/logger_backend_terminal.hpp>
