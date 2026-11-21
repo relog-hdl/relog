@@ -57,7 +57,7 @@ main(int argc, char* argv[])
 	using relog::bootstrap::opts::ParseOptsResult;
 
 	int ind;
-	ParseOptsResult ret = parse_opts(argc, argv);
+	ParseOptsResult ret = parse_opts(&ind, argc, argv);
 
 	switch(ret)
 	{

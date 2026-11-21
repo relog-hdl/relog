@@ -25,7 +25,7 @@ struct option longopts[] = {
 // clang-format on
 
 ParseOptsResult
-parse_opts(int argc, char* argv[])
+parse_opts(int* ind, int argc, char* argv[])
 {
 	int option, option_index;
 
@@ -66,9 +66,11 @@ parse_opts(int argc, char* argv[])
 				break;
 			case '?':
 				l.error("Argument error while parsing option: %d", option);
+				*ind = optind;
 				return ARGUMENT_ERROR;
 			default:
 				l.error("Unknown error while parsing option: %d\n(Option functionality likely not implemented)", option);
+				*ind = optind;
 				return UNKNOWN_ERROR;
 		}
 
@@ -119,6 +121,7 @@ parse_opts(int argc, char* argv[])
 		arg_reparse = false;
 	}
 
+	*ind = optind;
 	return OK;
 }
 

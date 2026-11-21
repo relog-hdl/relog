@@ -33,18 +33,20 @@ struct logging
 		}
 };
 
-typedef enum parse_opts_result
+enum parse_opts_result
 {
 	OK,
 	ARGUMENT_ERROR,
 	UNKNOWN_ERROR
-} ParseOptsResult;
+};
+
+typedef enum parse_opts_result ParseOptsResult;
 
 extern const_cstring optstring;
 extern struct option longopts[];
 
 ParseOptsResult
-parse_opts(int argc, char* argv[]);
+parse_opts(int* ind, int argc, char* argv[]);
 
 } // namespace relog::bootstrap::opts
 
