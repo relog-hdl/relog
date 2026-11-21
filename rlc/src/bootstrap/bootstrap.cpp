@@ -2,6 +2,8 @@
 
 #include <bootstrap/opts.hpp>
 
+#include <pipeline/pipeline.hpp>
+
 #include <service/logging/log_domain.hxx>
 #include <service/logging/logger.hpp>
 #include <service/logging/logger_backend_terminal.hpp>
@@ -13,6 +15,7 @@
 
 #include <librelog/version.h>
 
+#include <cstring>
 #include <memory>
 
 namespace relog::bootstrap
@@ -70,5 +73,50 @@ main(int argc, char* argv[])
 			break;
 	}
 
-	return 0;
+	bool files_opened = true;
+	int file_id, file_count = argc - ind;
+	FILE** files = reinterpret_cast<FILE**>(malloc(sizeof(FILE*) * file_count));
+	char* filename;
+	for(file_id = 0; file_id < file_count; ++file_id)
+	{
+		filename = argv[ind + file_id];
+		l.flow("fopen for file: %s", filename);
+		files[file_id] = fopen(filename, "r");
+
+		if(files[file_id] == NULL)
+		{
+			files_opened = false;
+			l.error("fopen: %s", strerror(errno));
+		}
+	}
+
+	if(!files_opened)
+	{
+		for(--file_id; file_id > 0; --file_id)
+		{
+			l.flow("fclose for fid: %d", file_id);
+			if(fclose(files[file_id]) != 0)
+			{
+				l.critical("fclose: %s", strerror(errno));
+				return 1;
+			}
+		}
+	}
+
+	using relog::pipeline::Pipeline;
+
+	Pipeline pl{};
+
+	pl.init_logging();
+
+	int exit_code = pl.entrypoint(file_count, files);
+
+	for(file_id = 0; file_id < file_count; ++file_id)
+	{
+		l.flow("fclose for fid: %d", file_id);
+		if(fclose(files[file_id]) != 0)
+			l.error("fclose: %s", strerror(errno));
+	}
+
+	return exit_code;
 }
