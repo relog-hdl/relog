@@ -17,18 +17,26 @@
 namespace relog::bootstrap
 {
 
-relog::service::logging::LogDomainOwner<std::string> d{};
-relog::service::logging::LogDomainProxy<std::string> r = d.get("bootstrap");
-relog::service::logging::Loggerf l{r, relog::service::logging::LogLevel::INFO};
+using relog::service::logging::LogDomainOwner;
+using relog::service::logging::LogDomainProxy;
+using relog::service::logging::Loggerf;
+using relog::service::logging::LogLevel;
+
+LogDomainOwner<std::string>& domain_owner = logging::get_domain_owner();
+LogDomainProxy<std::string>& domain = logging::get_domain();
+Loggerf& l = logging::get_logger();
 
 void
 init_logging()
 {
-	auto backend = std::make_shared<relog::service::logging::LoggerBackendTerminal>();
-	auto formatter = std::make_shared<relog::service::logging::LoggerFormatterTerminalPlain>();
+	using relog::service::logging::LoggerBackendTerminal;
+	using relog::service::logging::LoggerFormatterTerminalPlain;
 
-	r.changePipeline(backend, formatter);
-	r.setThreshold(relog::service::logging::LogLevel::FLOW);
+	auto backend = std::make_shared<LoggerBackendTerminal>();
+	auto formatter = std::make_shared<LoggerFormatterTerminalPlain>();
+
+	domain.changePipeline(backend, formatter);
+	domain.setThreshold(LogLevel::FLOW);
 }
 
 } // namespace relog::bootstrap
@@ -38,12 +46,28 @@ main(int argc, char* argv[])
 {
 	using relog::bootstrap::l;
 
-	relog::bootstrap::init_logging();
+	using relog::bootstrap::init_logging;
+
+	init_logging();
 	l.info("%s", RELOG_PROJECT_SUMMARY);
 	l.info("%s", LIBRELOG_PROJECT_SUMMARY);
 
-	relog::bootstrap::parse_opts(argc, argv);
-	l.flow("Parsed options.");
+	using relog::bootstrap::opts::parse_opts;
+	using relog::bootstrap::opts::ParseOptsResult;
+
+	int ind;
+	ParseOptsResult ret = parse_opts(argc, argv);
+
+	switch(ret)
+	{
+		case ParseOptsResult::ARGUMENT_ERROR:
+			return 1;
+		case ParseOptsResult::UNKNOWN_ERROR:
+			return 1;
+		default:
+			l.flow("Parsed options.");
+			break;
+	}
 
 	return 0;
 }

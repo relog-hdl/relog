@@ -2,13 +2,19 @@
 
 #include <bootstrap/bootstrap.hpp>
 
+#include <service/logging/log_domain.hxx>
+#include <service/logging/loggerf.hpp>
+
 #include <getopt.h>
 
 #include <cstdio>
 #include <cstdlib>
 
-namespace relog::bootstrap
+namespace relog::bootstrap::opts
 {
+
+relog::service::logging::LogDomainProxy<std::string>& domain = logging::get_domain();
+relog::service::logging::Loggerf& l = logging::get_logger();
 
 // clang-format off
 const_cstring optstring = "d";
@@ -116,4 +122,4 @@ parse_opts(int argc, char* argv[])
 	return OK;
 }
 
-} // namespace relog::bootstrap
+} // namespace relog::bootstrap::opts

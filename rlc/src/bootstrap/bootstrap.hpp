@@ -9,9 +9,33 @@
 namespace relog::bootstrap
 {
 
-extern relog::service::logging::LogDomainOwner<std::string> d;
-extern relog::service::logging::LogDomainProxy<std::string> r;
-extern relog::service::logging::Loggerf l;
+extern relog::service::logging::LogDomainOwner<std::string>& domain_owner;
+extern relog::service::logging::LogDomainProxy<std::string>& domain;
+extern relog::service::logging::Loggerf& l;
+
+struct logging
+{
+		static relog::service::logging::LogDomainOwner<std::string>&
+		get_domain_owner()
+		{
+			static relog::service::logging::LogDomainOwner<std::string> domain_owner_{};
+			return domain_owner_;
+		}
+
+		static relog::service::logging::LogDomainProxy<std::string>&
+		get_domain()
+		{
+			static relog::service::logging::LogDomainProxy<std::string> domain_ = get_domain_owner().get("bootstrap");
+			return domain_;
+		}
+
+		static relog::service::logging::Loggerf&
+		get_logger()
+		{
+			static relog::service::logging::Loggerf _logger{get_domain(), relog::service::logging::LogLevel::INFO};
+			return _logger;
+		}
+};
 
 void
 init_logging();
