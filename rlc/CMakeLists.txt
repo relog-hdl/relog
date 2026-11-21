@@ -19,7 +19,6 @@ flex_target(
 	lexer
 	"${LEXER_PATH_TMPLT}"
 	"${LEXER_PATH_TMPLT}.cpp"
-	DEFINES_FILE "${LEXER_PATH_TMPLT}.hpp"
 )
 
 bison_target(
@@ -67,12 +66,14 @@ target_compile_options(${PROJECT_NAME}
 
 target_sources(${PROJECT_NAME}
 	PRIVATE
-		${LEXER_PATH_TMPLT}.cpp
-		${PARSER_PATH_TMPLT}.cpp
 		src/service/logging/logger_backend_terminal.cpp
 		src/service/logging/logger_formatter_terminal.cpp
 		src/service/logging/loggerf.cpp
 		src/pipeline/pipeline.cpp
+		${LEXER_PATH_TMPLT}.cpp
+		src/pipeline/phase/lex/lexer.cpp
+		${PARSER_PATH_TMPLT}.cpp
+		src/pipeline/phase/parse/parser.cpp
 		src/bootstrap/opts.cpp
 		src/bootstrap/bootstrap.cpp
 )

@@ -8,10 +8,19 @@
 #ifndef RELOG_PIPELINE_PHASE_LEX_LEXER_H
 #define RELOG_PIPELINE_PHASE_LEX_LEXER_H
 
+#include <pipeline/pipeline.hpp>
+
+#include <service/logging/log_domain.hxx>
+#include <service/logging/loggerf.hpp>
+
+// clang-format off
+#include <pipeline/phase/parse/parser.y.hpp> // this is needed for symbol_type
+#include <pipeline/phase/parse/parser.h>
+
 /**
  * Generated Flex class name is yyFlexLexer by default. If we want to use more flex-generated
  * classes we should name them differently. See lexer.l prefix option.
- * 
+ *
  * Unfortunately the implementation relies on this trick with redefining class name
  * with a preprocessor macro. See GNU Flex manual, "Generating C++ Scanners" section
  */
@@ -26,25 +35,43 @@
 // to something sane, since you cannot overload return type.
 #undef YY_DECL
 #define YY_DECL relog::pipeline::parse::Parser::symbol_type relog::pipeline::lex::Lexer::get_next_token()
+// clang-format on
 
-#include <pipeline/phase/parse/parser.y.hpp> // this is needed for symbol_type
+namespace relog::pipeline::lex
+{
 
-namespace relog::pipeline::lex {
-	
-class Lexer : public yyFlexLexer {
+class Lexer final : public yyFlexLexer
+{
 	public:
-		Lexer() {}
-		
-		virtual ~Lexer() {}
+		static relog::service::logging::LogDomainProxy<std::string>&
+		get_domain()
+		{
+			static relog::service::logging::LogDomainProxy<std::string> domain_ = relog::pipeline::Pipeline::get_domain() / "lex";
+			return domain_;
+		}
+
+		static relog::service::logging::Loggerf&
+		get_logger()
+		{
+			static relog::service::logging::Loggerf _logger{get_domain(), relog::service::logging::LogLevel::INFO};
+			return _logger;
+		}
+
+	protected:
+		relog::service::logging::LogDomainProxy<std::string>& domain = get_domain();
+		relog::service::logging::Loggerf& l = get_logger();
+
+	protected:
+		Pipeline& pl;
+
+	public:
+		Lexer(Pipeline& pipeline) : pl(pipeline) {}
 
 		virtual relog::pipeline::parse::Parser::symbol_type get_next_token();
 
-		void LexerError(const char* msg) {
-			std::cerr << msg << std::endl;
-			exit(2);
-		} // TODO override
+		[[noreturn]] void LexerError(const char* msg);
 };
 
-}
+} // namespace relog::pipeline::lex
 
 #endif

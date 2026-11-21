@@ -109,7 +109,7 @@ main(int argc, char* argv[])
 
 	pl.init_logging();
 
-	int exit_code = pl.entrypoint(file_count, files);
+	int exit_code = pl.entrypoint(pl, file_count, files);
 
 	for(file_id = 0; file_id < file_count; ++file_id)
 	{

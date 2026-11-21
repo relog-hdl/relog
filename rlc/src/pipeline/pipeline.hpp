@@ -13,7 +13,7 @@ namespace relog::pipeline
 
 class Pipeline final
 {
-	protected:
+	public:
 		static relog::service::logging::LogDomainOwner<std::string>&
 		get_domain_owner()
 		{
@@ -42,7 +42,7 @@ class Pipeline final
 	public:
 		void init_logging();
 
-		int entrypoint(int file_count, FILE** files);
+		int entrypoint(Pipeline& pl, int file_count, FILE** files);
 };
 
 } // namespace relog::pipeline

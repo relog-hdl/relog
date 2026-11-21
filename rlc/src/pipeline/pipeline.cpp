@@ -1,5 +1,8 @@
 #include "pipeline.hpp"
 
+#include <pipeline/phase/lex/lexer.h>
+#include <pipeline/phase/parse/parser.h>
+
 #include <service/logging/log_domain.hxx>
 #include <service/logging/logger_backend_terminal.hpp>
 #include <service/logging/logger_formatter_terminal.hpp>
@@ -31,8 +34,15 @@ Pipeline::init_logging()
 }
 
 int
-Pipeline::entrypoint(int file_count, FILE** files)
+Pipeline::entrypoint(Pipeline& pl, int file_count, FILE** files)
 {
+	using relog::pipeline::lex::Lexer;
+	using relog::pipeline::parse::Parser;
+
+	Lexer lexer{pl};
+	Parser parser{pl, lexer};
+	parser.parse();
+
 	return 0;
 }
 
