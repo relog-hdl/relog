@@ -76,7 +76,6 @@ main(int argc, char* argv[])
 			break;
 	}
 
-	bool files_opened = true;
 	int file_id, file_count = argc - ind;
 	std::vector<std::ifstream> files(file_count);
 	char* filename;
@@ -88,27 +87,9 @@ main(int argc, char* argv[])
 
 		if(!files[file_id])
 		{
-			files_opened = false;
 			l.error("error opening file: %s", std::strerror(errno));
-			break;
+			return 1;
 		}
-	}
-
-	if(!files_opened)
-	{
-		for(--file_id; file_id > 0; --file_id)
-		{
-			l.flow("closing file: fid %d", file_id);
-			files[file_id].close();
-
-			if(!files[file_id])
-			{
-				l.critical("error closing file: %s", std::strerror(errno));
-				return 2;
-			}
-		}
-
-		return 1;
 	}
 
 	using relog::pipeline::Pipeline;
@@ -118,15 +99,6 @@ main(int argc, char* argv[])
 	pl.init_logging();
 
 	int exit_code = pl.entrypoint(pl, files);
-
-	for(file_id = 0; file_id < file_count; ++file_id)
-	{
-		l.flow("closing file: fid %d", file_id);
-		files[file_id].close();
-
-		if(!files[file_id])
-			l.error("error closing file: %s", std::strerror(errno));
-	}
 
 	return exit_code;
 }
