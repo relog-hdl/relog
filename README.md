@@ -14,11 +14,11 @@ Project structure is subject to change at this time. The current plan,
 however, is as follows.
 
 ```
-:                                                                             :
-:                 |-------|-------|-------------|-------|                     :
-: [ Microphases ] |   1   |   2   |     ...     |   N   |                     :
-:                 |-------|-------|-------------|-------|                     :
-:   (Optional)          '                         '                           :
+: --                                                      --                  :
+: |               |-------|-------|-------------|-------|  |                  :
+: | Microphases   |   1   |   2   |     ...     |   N   |  |   (Optional)     :
+: |               |-------|-------|-------------|-------|  |                  :
+: --                    '                         '       --                  :
 :                            '               '                                :
 :                   |----------\------------\-------------\--------------|    :
 :        Phases     |    Lex    \   Parse    \   Reform    \    Tidy     |    :
@@ -26,14 +26,14 @@ however, is as follows.
 :                   |----------/------------/-------------/--------------|    :
 :                   ^           ^            ^             ^             ^    :
 :                   |           |            |             |             |    :
-:               Relog      Tokens          AST             Modifications |    :
-:         source code                on top of             to AST        |    :
-:                                       Tokens             on top of     |    :
-:                                                          Tokens        /    :
-:                   |----------------------|                            /     :
-:    Facilities     | Diagnostic Messaging |                           /      :
-:                   |----------------------|       Verilog     _______/       :
- '                                                 source code               '
+:               Relog      Tokens          AST             Modified AST  |    :
+:         source code                                                    |    :
+:                                                                       /     :
+:                                                    Verilog     ______/      :
+:                   |----------------------|         source code              :
+:    Facilities     | Diagnostic Messaging |                                  :
+:                   |----------------------|                                  :
+ '                                                                           '
       '                                                                '  
             '                                                    '  
                   '                                        '  
@@ -45,15 +45,15 @@ however, is as follows.
 
 -------------------------------------------------------------------------------
 
-               |---------|  |--------|  |-------------|  |------------------|  
-    Services   | Logging |  | Config |  | Source Code |  | Compilation Code |  
-               |         |  |        |  |    Tree     |  |       Tree       |  
-               |---------|  |--------|  |-------------|  |------------------|  
+               |---------|  |--------|  |------------|  
+    Services   | Logging |  | Config |  |   Source   |  
+               |         |  |        |  |   Stack    |  
+               |---------|  |--------|  |------------|  
 
                |--------|  |----------|  
-         Lib   | Domain |  | File I/O |  
-               |--------|  |----------|  
-
+         Lib   | Domain |  |  Source  |  
+               |--------|  | File I/O |  
+                           |----------|
 
 		Util        (only things which should really have been std::x)  
 
@@ -98,17 +98,16 @@ of which are undetermined at this point.
 
 ## Subsystem Status
 
-| Lib      | Location         | Status               |
-|----------|------------------|----------------------|
-| Domain   | `src/lib/domain` | usable               |
-| File I/O | `src/lib/io`     | nonexistant          |
+| Lib             | Location         | Status               |
+|-----------------|------------------|----------------------|
+| Domain          | `src/lib/domain` | usable               |
+| Source File I/O | `src/lib/io`     | nonexistant          |
 
 | Service               | Location               | Status                  |
 |-----------------------|------------------------|-------------------------|
 | Logging               | `src/service/logging`  | usable                  |
 | Config                | `src/service/config`   | nonexistant             |
-| Source File Tree      | `src/service/codetree` | skeleton, needs rewrite |
-| Compilation File Tree | `src/service/codetree` | skeleton, needs rewrite |
+| Source Stack          | `src/service/source`   | skeleton, needs rewrite |
 
 | Application | Location        | Status\*    |
 |-------------|-----------------|-------------|
