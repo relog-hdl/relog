@@ -5,15 +5,19 @@
 
 #include <service/logging/log_domain.hxx>
 #include <service/logging/loggerf.hpp>
-
-#include <fstream>
-#include <vector>
+#include <service/source/source_stack.hpp>
 
 namespace relog::pipeline
 {
 
 class Pipeline final
 {
+	protected:
+		Pipeline& self;
+
+	public:
+		relog::service::source::SourceStackController& ssc;
+
 	public:
 		static relog::service::logging::LogDomainOwner<std::string>&
 		get_domain_owner()
@@ -41,9 +45,11 @@ class Pipeline final
 		relog::service::logging::Loggerf& l = get_logger();
 
 	public:
+		Pipeline(relog::service::source::SourceStackController& ssc_);
+
 		void init_logging();
 
-		int entrypoint(Pipeline& pl, std::vector<std::ifstream>& files);
+		int entrypoint();
 };
 
 } // namespace relog::pipeline

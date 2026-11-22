@@ -8,10 +8,6 @@
 #include <service/logging/logger_formatter_terminal.hpp>
 #include <service/logging/loggerf.hpp>
 
-#include <fstream>
-#include <iostream>
-#include <vector>
-
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
 namespace relog::pipeline
@@ -21,6 +17,9 @@ using relog::service::logging::LogDomainOwner;
 using relog::service::logging::LogDomainProxy;
 using relog::service::logging::Loggerf;
 using relog::service::logging::LogLevel;
+using relog::service::source::SourceStackController;
+
+Pipeline::Pipeline(SourceStackController& ssc_) : self(*this), ssc(ssc_) {}
 
 void
 Pipeline::init_logging()
@@ -36,19 +35,18 @@ Pipeline::init_logging()
 }
 
 int
-Pipeline::entrypoint(Pipeline& pl, std::vector<std::ifstream>& files)
+Pipeline::entrypoint()
 {
 	using relog::pipeline::lex::Lexer;
 	using relog::pipeline::parse::Parser;
 
-	Lexer lexer{pl};
-	Parser parser{pl, lexer};
+	if(ssc.empty())
+		return 0;
 
-	for(auto& file : files)
-	{
-		lexer.switch_streams(file, std::cout);
-		parser.parse();
-	}
+	Lexer lexer{self};
+	Parser parser{self, lexer};
+
+	parser.parse();
 
 	return 0;
 }

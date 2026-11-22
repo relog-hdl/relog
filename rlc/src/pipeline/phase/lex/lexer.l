@@ -26,9 +26,6 @@
 /* disable stdout printouts */
 %option nodefault
 
-/* disable yywrap while lexer integration is non-existent */
-%option noyywrap
-
 %option c++
 %option yyclass="Lexer"
 %option prefix="Lexer_"
@@ -249,3 +246,7 @@ module/{TS} {
 }
 
 %%
+
+int Lexer_FlexLexer::yywrap() {
+	return 1;
+}

@@ -9,6 +9,7 @@
 #include <util/aliases.hpp>
 
 #include <getopt.h>
+#include <vector>
 
 namespace relog::bootstrap::opts
 {
@@ -46,7 +47,7 @@ extern const_cstring optstring;
 extern struct option longopts[];
 
 ParseOptsResult
-parse_opts(int* ind, int argc, char* argv[]);
+parse_opts(std::vector<char*>& nonoptargs, int argc, char* argv[]);
 
 } // namespace relog::bootstrap::opts
 

@@ -7,8 +7,7 @@
 
 #include <getopt.h>
 
-#include <cstdio>
-#include <cstdlib>
+#include <vector>
 
 namespace relog::bootstrap::opts
 {
@@ -25,7 +24,7 @@ struct option longopts[] = {
 // clang-format on
 
 ParseOptsResult
-parse_opts(int* ind, int argc, char* argv[])
+parse_opts(std::vector<char*>& nonoptargs, int argc, char* argv[])
 {
 	int option, option_index;
 
@@ -38,91 +37,97 @@ parse_opts(int* ind, int argc, char* argv[])
 
 	while(true)
 	{
-		option_index = 0;
-		opterr = 0;
-
-		option = getopt_long(argc, argv, optstring, longopts, &option_index);
-
-		if(option == -1)
-			break;
-
-		l.info("Parsing option: %c (%d)", option, option);
-
-		switch(option)
+		while(true)
 		{
-			case 0:
-				l.info("Parsing long option: %s", longopts[option_index].name);
-				if(longopts[option_index].has_arg != no_argument)
-					arg_reparse = true;
-				if(longopts[option_index].flag != NULL)
-				{
+			option_index = 0;
+			opterr = 0;
+
+			option = getopt_long(argc, argv, optstring, longopts, &option_index);
+
+			if(option == -1)
+				break;
+
+			l.info("Parsing option: %c (%d)", option, option);
+
+			switch(option)
+			{
+				case 0:
+					l.info("Parsing long option: %s", longopts[option_index].name);
+					if(longopts[option_index].has_arg != no_argument)
+						arg_reparse = true;
+					if(longopts[option_index].flag != NULL)
+					{
+						cont = true;
+						break;
+					}
+
+					break;
+				case 'd':
 					cont = true;
 					break;
+				case '?':
+					l.error("Argument error while parsing option: %d", option);
+					return ARGUMENT_ERROR;
+				default:
+					l.error("Unknown error while parsing option: %d\n(Option functionality likely not implemented)", option);
+					return UNKNOWN_ERROR;
+			}
+
+			if(cont)
+			{
+				cont = false;
+				continue;
+			}
+
+			if(arg_reparse)
+			{
+				if(optarg == NULL)
+				{
+					last = optind - 1;
+					for(int i = optind; i < argc; i++)
+						if(argv[i][0] == '-')
+							break;
+						else
+							last = i;
+					optarg_override_length = last - optind + 1;
+					optarg_override = reinterpret_cast<char**>(malloc(sizeof(char*) * optarg_override_length));
+					for(int i = optind; i <= last; i++)
+						optarg_override[i - optind] = argv[i];
+				}
+				else
+				{
+					last = optind - 1;
+					for(int i = optind; i < argc; i++)
+						if(argv[i][0] == '-')
+							break;
+						else
+							last = i;
+					optarg_override_length = last - optind + 2;
+					optarg_override = reinterpret_cast<char**>(malloc(sizeof(char*) * optarg_override_length));
+					optarg_override[0] = optarg;
+					for(int i = optind; i <= last; i++)
+						optarg_override[i - optind + 1] = argv[i];
 				}
 
-				break;
-			case 'd':
-				cont = true;
-				break;
-			case '?':
-				l.error("Argument error while parsing option: %d", option);
-				*ind = optind;
-				return ARGUMENT_ERROR;
-			default:
-				l.error("Unknown error while parsing option: %d\n(Option functionality likely not implemented)", option);
-				*ind = optind;
-				return UNKNOWN_ERROR;
-		}
-
-		if(cont)
-		{
-			cont = false;
-			continue;
-		}
-
-		if(arg_reparse)
-		{
-			if(optarg == NULL)
-			{
-				last = optind - 1;
-				for(int i = optind; i < argc; i++)
-					if(argv[i][0] == '-')
-						break;
-					else
-						last = i;
-				optarg_override_length = last - optind + 1;
-				optarg_override = reinterpret_cast<char**>(malloc(sizeof(char*) * optarg_override_length));
-				for(int i = optind; i <= last; i++)
-					optarg_override[i - optind] = argv[i];
-			}
-			else
-			{
-				last = optind - 1;
-				for(int i = optind; i < argc; i++)
-					if(argv[i][0] == '-')
-						break;
-					else
-						last = i;
-				optarg_override_length = last - optind + 2;
-				optarg_override = reinterpret_cast<char**>(malloc(sizeof(char*) * optarg_override_length));
-				optarg_override[0] = optarg;
-				for(int i = optind; i <= last; i++)
-					optarg_override[i - optind + 1] = argv[i];
+				for(unsigned int i = 0; i < optarg_override_length; i++)
+					l.info("Parsed argument %u: '%s'", i + 1, optarg_override[i]);
 			}
 
-			for(unsigned int i = 0; i < optarg_override_length; i++)
-				l.info("Parsed argument %u: '%s'", i + 1, optarg_override[i]);
+			free(optarg_override);
+			optarg_override = NULL;
+			optarg_override_length = 0;
+
+			arg_reparse = false;
 		}
 
-		free(optarg_override);
-		optarg_override = NULL;
-		optarg_override_length = 0;
+		if(optind >= argc)
+			return OK;
 
-		arg_reparse = false;
+		nonoptargs.push_back(argv[optind]);
+
+		argc -= optind;
+		argv += optind;
 	}
-
-	*ind = optind;
-	return OK;
 }
 
 } // namespace relog::bootstrap::opts

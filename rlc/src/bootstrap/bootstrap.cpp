@@ -9,15 +9,13 @@
 #include <service/logging/logger_backend_terminal.hpp>
 #include <service/logging/logger_formatter_terminal.hpp>
 #include <service/logging/loggerf.hpp>
+#include <service/source/source_stack.hpp>
 
 #include <lib/domain/domain.hpp>
 #include <rlc/version.h>
 
 #include <librelog/version.h>
 
-#include <cstring>
-#include <fstream>
-#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -53,52 +51,49 @@ main(int argc, char* argv[])
 {
 	using relog::bootstrap::l;
 
-	using relog::bootstrap::init_logging;
-
-	init_logging();
-	l.info("%s", RELOG_PROJECT_SUMMARY);
-	l.info("%s", LIBRELOG_PROJECT_SUMMARY);
-
-	using relog::bootstrap::opts::parse_opts;
-	using relog::bootstrap::opts::ParseOptsResult;
-
-	int ind;
-	ParseOptsResult ret = parse_opts(&ind, argc, argv);
-
-	switch(ret)
+	try
 	{
-		case ParseOptsResult::ARGUMENT_ERROR:
-			return 1;
-		case ParseOptsResult::UNKNOWN_ERROR:
-			return 1;
-		default:
-			l.flow("Parsed options.");
-			break;
-	}
+		using relog::bootstrap::init_logging;
 
-	int file_id, file_count = argc - ind;
-	std::vector<std::ifstream> files(file_count);
-	char* filename;
-	for(file_id = 0; file_id < file_count; ++file_id)
-	{
-		filename = argv[ind + file_id];
-		l.flow("opening file: %s", filename);
-		files[file_id] = std::ifstream(filename, std::ios::in);
+		init_logging();
 
-		if(!files[file_id])
+		l.info("%s", RELOG_PROJECT_SUMMARY);
+		l.info("%s", LIBRELOG_PROJECT_SUMMARY);
+
+		using relog::bootstrap::opts::parse_opts;
+		using relog::bootstrap::opts::ParseOptsResult;
+
+		std::vector<char*> nonoptargs;
+		ParseOptsResult ret = parse_opts(nonoptargs, argc, argv);
+
+		switch(ret)
 		{
-			l.error("error opening file: %s", std::strerror(errno));
-			return 1;
+			case ParseOptsResult::ARGUMENT_ERROR:
+				return 1;
+			case ParseOptsResult::UNKNOWN_ERROR:
+				return 1;
+			default:
+				l.flow("Parsed options.");
+				break;
 		}
+
+		using relog::service::source::SourceStackController;
+
+		SourceStackController ssc{nonoptargs};
+
+		using relog::pipeline::Pipeline;
+
+		Pipeline pl{ssc};
+
+		pl.init_logging();
+
+		int exit_code = pl.entrypoint();
+
+		return exit_code;
 	}
-
-	using relog::pipeline::Pipeline;
-
-	Pipeline pl{};
-
-	pl.init_logging();
-
-	int exit_code = pl.entrypoint(pl, files);
-
-	return exit_code;
+	catch(std::runtime_error& source_stack_error)
+	{
+		l.critical("%s", source_stack_error.what());
+		return 1;
+	}
 }

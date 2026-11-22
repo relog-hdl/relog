@@ -65,9 +65,11 @@ class Lexer final : public yyFlexLexer
 		Pipeline& pl;
 
 	public:
-		Lexer(Pipeline& pipeline) : pl(pipeline) {}
+		Lexer(Pipeline& pipeline);
 
 		virtual relog::pipeline::parse::Parser::symbol_type get_next_token();
+
+		int yywrap();
 
 		[[noreturn]] void LexerError(const char* msg);
 };
