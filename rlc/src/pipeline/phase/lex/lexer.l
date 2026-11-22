@@ -33,15 +33,28 @@
 %option yyclass="Lexer"
 %option prefix="Lexer_"
 
+/* whitespace */
 WS      [ \t]
 
+/* newline */
 NL      (\r\n|\r|\n)
 
+/* whitespace or newline */
 WSNL    " "|\r\n|\r|\n|\t
 
+/* token separator */
 TS      [^_0-9a-zA-Z]
 
+/* identifier */
 ID      [_a-zA-Z]+[_0-9a-zA-Z]*
+
+/* string literal */
+SL      "\""([^"\\]|\\.)*\"
+
+/* character literal */
+CL      \'([^'\\]|\\.)*\'
+
+%x ctxMultilineComment
 
 %%
 
@@ -198,7 +211,33 @@ module/{TS} {
 	return yytext[0];
 }
 
-{WSNL} {}
+{WS}
+
+{NL}
+
+"//"[^\n]* {
+	l.flow("comment: %s", yytext);
+}
+
+"/*" {
+	l.flow("begin multiline comment");
+	BEGIN(ctxMultilineComment);
+}
+
+<ctxMultilineComment>"*/" {
+	l.flow("end multiline comment");
+	BEGIN(INITIAL);
+}
+
+<ctxMultilineComment>[^*/\n]* {
+	l.flow("multi-line comment: %s", yytext);
+}
+
+<ctxMultilineComment>\*
+
+<ctxMultilineComment>\/
+
+<ctxMultilineComment>{NL}
 
 . {
 	l.warning("unknown character");
