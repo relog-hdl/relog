@@ -60,6 +60,46 @@ module/{TS} {
 	return Parser::make_module();
 }
 
+">=" {
+	l.flow("opGtEq");
+	return Parser::make_opGtEq();
+}
+
+"=<" {
+	l.flow("opEqLt");
+	return Parser::make_opEqLt();
+}
+
+"==" {
+	l.flow("opEqEq");
+	return Parser::make_opEqEq();
+}
+
+"!=" {
+	l.flow("opExclEq");
+	return Parser::make_opExclEq();
+}
+
+"===" {
+	l.flow("opEqEqEq");
+	return Parser::make_opEqEqEq();
+}
+
+"!==" {
+	l.flow("opExclEqEq");
+	return Parser::make_opExclEqEq();
+}
+
+"&&" {
+	l.flow("opAmpAmp");
+	return Parser::make_opAmpAmp();
+}
+
+"||" {
+	l.flow("opPipePipe");
+	return Parser::make_opPipePipe();
+}
+
 "<-" {
 	l.flow("opLtDash");
 	return Parser::make_opLtDash();
@@ -75,8 +115,71 @@ module/{TS} {
 	return Parser::make_opDashGt();
 }
 
-\&|\||\~|\!|\+|\-|\= {
+"<=" {
+	l.flow("opLtEq");
+	return Parser::make_opLtEq();
+}
+
+"<=>" {
+	l.flow("opLtEqGt");
+	return Parser::make_opLtEqGt();
+}
+
+"=>" {
+	l.flow("opEqGt");
+	return Parser::make_opEqGt();
+}
+
+"~&" {
+	l.flow("opTildAmp");
+	return Parser::make_opTildAmp();
+}
+
+"^|" {
+	l.flow("opCaretPipe");
+	return Parser::make_opCaretPipe();
+}
+
+"~^" {
+	l.flow("opTildCaret");
+	return Parser::make_opTildCaret();
+}
+
+"^~" {
+	l.flow("opCaretTild");
+	return Parser::make_opCaretTild();
+}
+
+\<|\> {
+	switch(yytext[0]) {
+		case '<':
+			l.flow("lt");
+			return '<';
+		case '>':
+			l.flow("gt");
+			return '>';
+		default:
+			l.warning("lt/gt unknown token");
+			return yytext[0];
+	}
+}
+
+"<<" {
+	l.flow("opShiftLeft");
+	return Parser::make_opShiftLeft();
+}
+
+">>" {
+	l.flow("opShiftRight");
+	return Parser::make_opShiftRight();
+}
+
+\^|\&|\||\~|\!|\+|\-|\*|\/|\%|\= {
 	l.flow("op: %c", yytext[0]);
+	return yytext[0];
+}
+
+\?|\: {
 	return yytext[0];
 }
 

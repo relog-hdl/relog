@@ -76,11 +76,54 @@
 
 %token module;
 
-%token opLtDash opLtDashGt opDashGt;
-%token '&' '|' '~' '!' '+' '-' '=';
-%token '(' ')' '{' '}';
 
+%token opGtEq ">=";
+%token opEqLt "=<";
+%token opEqEq "==";
+%token opExclEq "!=";
+%token opEqEqEq "===";
+%token opExclEqEq "!==";
+
+%token opAmpAmp "&&";
+%token opPipePipe "||";
+
+%token opLtDash "<-";
+%token opLtDashGt "<->";
+%token opDashGt "->";
+
+%token opLtEq "<=";
+%token opLtEqGt "<=>";
+%token opEqGt "=>";
+
+%token lt "<";
+%token gt ">";
+
+%token opShiftLeft "<<";
+%token opShiftRight ">>";
+
+%token opTildAmp "~&";
+%token opCaretPipe "^|";
+%token opTildCaret "~^";
+%token opCaretTild "^~";
+
+%token '^' '&' '|' '~' '!' '+' '-' '*' '/' '%' '=';
+
+
+%token '?' ':';
+%token '(' ')' '{' '}';
 %token ',' ';';
+
+/*
+TODO precedence
+%left ','
+%left '|'
+%left '^'
+%left '&'
+
+%left '+' '-'
+%left '*' '/' '%'
+%right '!' '~'
+*/
 
 %type <std::string> type
 
@@ -208,9 +251,9 @@ statement_named_ref_net_decl		: net_type statement_named_ref_net_decl_list ';'
 									;
 
 statement_named_ref_net_decl_list	: identifier
-								 	| identifier opLtDash expr
+								 	| identifier "<-" expr
 								 	| statement_named_ref_net_decl_list ',' identifier
-								 	| statement_named_ref_net_decl_list ',' identifier opLtDash expr
+								 	| statement_named_ref_net_decl_list ',' identifier "<-" expr
 								 	;
 
 statement_named_ref_decl			: type statement_named_ref_decl_list ';'
@@ -222,18 +265,18 @@ statement_named_ref_decl_list		: identifier
 							 		| statement_named_ref_decl_list ',' identifier '=' expr
 							 		;
 
-statement_assignment				: identifier opLtDash expr ';'
+statement_assignment				: identifier "<-" expr ';'
 									;
 
-expr			: expr_named_ref
+expr			: base
 					{
-						l.flow("expr: expr_named_ref");
+						l.flow("expr: base");
 					}
 				;
 
-expr_named_ref	: identifier
+base			: identifier
 					{
-						l.flow("expr_named_ref: %s", $1.c_str());
+						l.flow("base: %s", $1.c_str());
 					}
 				;
 
