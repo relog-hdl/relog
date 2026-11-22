@@ -1,3 +1,13 @@
+# Structure based on cmake-examples/02-sub-projects
+# used under The MIT License (MIT)
+# Copyright (c) 2015 Thom Troy <https://hopstorawpointers.blogspot.com/>
+# (https://github.com/ttroy50/cmake-examples)
+#
+# Lexer & parser integration based on flex-bison-example
+# used under The MIT License (MIT)
+# Copyright (c) 2020 Ivano Bilenchi <https://ivanobilenchi.com>
+# (https://github.com/IvanoBilenchi/flex-bison-example)
+
 project(rlc VERSION 0.0.1)
 set(PROJECT_VERSION_TAG "dev")
 

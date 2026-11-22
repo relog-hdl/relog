@@ -1,3 +1,8 @@
+# Structure based on cmake-examples/02-sub-projects
+# used under The MIT License (MIT)
+# Copyright (c) 2015 Thom Troy <https://hopstorawpointers.blogspot.com/>
+# (https://github.com/ttroy50/cmake-examples)
+
 cmake_minimum_required(VERSION 3.20)
 project(relog)
 

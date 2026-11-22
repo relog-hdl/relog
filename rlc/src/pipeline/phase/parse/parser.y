@@ -1,8 +1,13 @@
 /*
- * Structure based on Flex & Bison LALR C++ Example
+ * Cpp structure & integration based on Flex & Bison LALR C++ Example
  * used under The MIT License (MIT)
  * Copyright (c) 2014 Krzysztof Narkiewicz <krzysztof.narkiewicz@ezaquarii.com>
  * (https://github.com/ezaquarii/bison-flex-cpp-example)
+ *
+ * Rules based on (in large but limited part) cppparser
+ * used under The MIT License (MIT)
+ * Copyright (c) 2022 Satya Das <SatyaRanjan.Das@tomtom.com>
+ * (https://github.com/satya-das/cppparser)
  */
 
 %require "3.2"

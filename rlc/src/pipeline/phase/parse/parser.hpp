@@ -1,3 +1,10 @@
+/*
+ * Cpp structure & integration based on Flex & Bison LALR C++ Example
+ * used under The MIT License (MIT)
+ * Copyright (c) 2014 Krzysztof Narkiewicz <krzysztof.narkiewicz@ezaquarii.com>
+ * (https://github.com/ezaquarii/bison-flex-cpp-example)
+ */
+
 #ifndef RELOG_PIPELINE_PHASE_PARSE_PARSER_HPP
 #define RELOG_PIPELINE_PHASE_PARSE_PARSER_HPP
 
