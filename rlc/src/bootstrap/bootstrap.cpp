@@ -16,7 +16,10 @@
 #include <librelog/version.h>
 
 #include <cstring>
+#include <fstream>
+#include <iostream>
 #include <memory>
+#include <vector>
 
 namespace relog::bootstrap
 {
@@ -75,18 +78,19 @@ main(int argc, char* argv[])
 
 	bool files_opened = true;
 	int file_id, file_count = argc - ind;
-	FILE** files = reinterpret_cast<FILE**>(malloc(sizeof(FILE*) * file_count));
+	std::vector<std::ifstream> files(file_count);
 	char* filename;
 	for(file_id = 0; file_id < file_count; ++file_id)
 	{
 		filename = argv[ind + file_id];
-		l.flow("fopen for file: %s", filename);
-		files[file_id] = fopen(filename, "r");
+		l.flow("opening file: %s", filename);
+		files[file_id] = std::ifstream(filename, std::ios::in);
 
-		if(files[file_id] == NULL)
+		if(!files[file_id])
 		{
 			files_opened = false;
-			l.error("fopen: %s", strerror(errno));
+			l.error("error opening file: %s", std::strerror(errno));
+			break;
 		}
 	}
 
@@ -94,13 +98,17 @@ main(int argc, char* argv[])
 	{
 		for(--file_id; file_id > 0; --file_id)
 		{
-			l.flow("fclose for fid: %d", file_id);
-			if(fclose(files[file_id]) != 0)
+			l.flow("closing file: fid %d", file_id);
+			files[file_id].close();
+
+			if(!files[file_id])
 			{
-				l.critical("fclose: %s", strerror(errno));
-				return 1;
+				l.critical("error closing file: %s", std::strerror(errno));
+				return 2;
 			}
 		}
+
+		return 1;
 	}
 
 	using relog::pipeline::Pipeline;
@@ -109,13 +117,15 @@ main(int argc, char* argv[])
 
 	pl.init_logging();
 
-	int exit_code = pl.entrypoint(pl, file_count, files);
+	int exit_code = pl.entrypoint(pl, files);
 
 	for(file_id = 0; file_id < file_count; ++file_id)
 	{
-		l.flow("fclose for fid: %d", file_id);
-		if(fclose(files[file_id]) != 0)
-			l.error("fclose: %s", strerror(errno));
+		l.flow("closing file: fid %d", file_id);
+		files[file_id].close();
+
+		if(!files[file_id])
+			l.error("error closing file: %s", std::strerror(errno));
 	}
 
 	return exit_code;

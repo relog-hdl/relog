@@ -6,7 +6,8 @@
 #include <service/logging/log_domain.hxx>
 #include <service/logging/loggerf.hpp>
 
-#include <cstdio>
+#include <fstream>
+#include <vector>
 
 namespace relog::pipeline
 {
@@ -42,7 +43,7 @@ class Pipeline final
 	public:
 		void init_logging();
 
-		int entrypoint(Pipeline& pl, int file_count, FILE** files);
+		int entrypoint(Pipeline& pl, std::vector<std::ifstream>& files);
 };
 
 } // namespace relog::pipeline

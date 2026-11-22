@@ -8,7 +8,9 @@
 #include <service/logging/logger_formatter_terminal.hpp>
 #include <service/logging/loggerf.hpp>
 
-#include <cstdio>
+#include <fstream>
+#include <iostream>
+#include <vector>
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
@@ -34,7 +36,7 @@ Pipeline::init_logging()
 }
 
 int
-Pipeline::entrypoint(Pipeline& pl, int file_count, FILE** files)
+Pipeline::entrypoint(Pipeline& pl, std::vector<std::ifstream>& files)
 {
 	using relog::pipeline::lex::Lexer;
 	using relog::pipeline::parse::Parser;
