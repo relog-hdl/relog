@@ -113,17 +113,19 @@
 %token '(' ')' '{' '}';
 %token ',' ';';
 
-/*
-TODO precedence
-%left ','
+%right '?' TERNARYCOND
+%left "||"
+%left "&&"
 %left '|'
-%left '^'
+%left '^' "^~"
 %left '&'
 
+%left "==" "!=" "===" "!=="
+%left '<' '>' "=<" ">="
+%left "<<" ">>"
 %left '+' '-'
 %left '*' '/' '%'
-%right '!' '~'
-*/
+%right UNARYPLUS UNARYMINUS '!' '~' UNARYAMP "~&" UNARYPIPE "^|" UNARYCARET "~^"
 
 %type <std::string> type
 
@@ -271,6 +273,41 @@ statement_assignment				: identifier "<-" expr ';'
 expr			: base
 					{
 						l.flow("expr: base");
+					}
+				| '+' base %prec UNARYPLUS
+				| '-' base %prec UNARYMINUS
+				| '!' base
+				| '~' base
+				| '&' base %prec UNARYAMP
+				| "~&" base
+				| '|' base %prec UNARYPIPE
+				| "^|" base
+				| '^' base %prec UNARYCARET
+				| "~^" base
+				| expr '+' expr
+				| expr '-' expr
+				| expr '*' expr
+				| expr '/' expr
+				| expr '%' expr
+				| expr "==" expr
+				| expr "!=" expr
+				| expr "===" expr
+				| expr "!==" expr
+				| expr "&&" expr
+				| expr "||" expr
+				| expr '<' expr
+				| expr "=<" expr
+				| expr '>' expr
+				| expr ">=" expr
+				| expr '&' expr
+				| expr '|' expr
+				| expr '^' expr
+				| expr "^~" expr
+				| expr ">>" expr
+				| expr "<<" expr
+				| expr '?' expr ':' expr %prec TERNARYCOND
+					{
+						l.flow("expr: (ternary)");
 					}
 				;
 
