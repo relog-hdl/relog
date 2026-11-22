@@ -43,7 +43,12 @@ Pipeline::entrypoint(Pipeline& pl, std::vector<std::ifstream>& files)
 
 	Lexer lexer{pl};
 	Parser parser{pl, lexer};
-	parser.parse();
+
+	for(auto& file : files)
+	{
+		lexer.switch_streams(file, std::cout);
+		parser.parse();
+	}
 
 	return 0;
 }
