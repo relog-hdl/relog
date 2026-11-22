@@ -65,39 +65,29 @@ module/{TS} {
 	return Parser::make_opLtDash();
 }
 
-"=" {
-	l.flow("opEq");
-	return Parser::make_opEq();
+"<->" {
+	l.flow("opLtDashGt");
+	return Parser::make_opLtDashGt();
 }
 
-"(" {
-	l.flow("lparen");
-	return Parser::make_lparen();
+"->" {
+	l.flow("opDashGt");
+	return Parser::make_opDashGt();
 }
 
-")" {
-	l.flow("rparen");
-	return Parser::make_rparen();
+\&|\||\~|\!|\+|\-|\= {
+	l.flow("op: %c", yytext[0]);
+	return yytext[0];
 }
 
-"{" {
-	l.flow("lcurly");
-	return Parser::make_lcurly();
+\(|\)|\{|\} {
+	l.flow("brace: %c", yytext[0]);
+	return yytext[0];
 }
 
-"}" {
-	l.flow("rcurly");
-	return Parser::make_rcurly();
-}
-
-"," {
-	l.flow("comma");
-	return Parser::make_comma();
-}
-
-";" {
-	l.flow("semicolon");
-	return Parser::make_semicolon();
+\,|\; {
+	l.flow("separator: %c", yytext[0]);
+	return yytext[0];
 }
 
 {WSNL} {}

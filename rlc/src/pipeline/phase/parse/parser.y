@@ -76,10 +76,11 @@
 
 %token module;
 
-%token opLtDash opEq;
-%token lparen rparen lcurly rcurly;
+%token opLtDash opLtDashGt opDashGt;
+%token '&' '|' '~' '!' '+' '-' '=';
+%token '(' ')' '{' '}';
 
-%token comma semicolon;
+%token ',' ';';
 
 %type <std::string> type
 
@@ -87,9 +88,9 @@
 
 %%
 
-design				: module_decl_list
+design				: design_statement_list
 						{
-							l.flow("design: module_decl_list");
+							l.flow("design: design_statement_list");
 						}
 	   				| %empty
 						{
@@ -97,31 +98,59 @@ design				: module_decl_list
 						}
 	   				;
 
-module_decl_list	: module_decl
+design_statement_list	: design_statement
+							{
+								l.flow("design_statement_list: (start)");
+							}
+						| design_statement_list design_statement
+							{
+								l.flow("design_statement_list: (continuation)");
+							}
+						;
+
+design_statement	: module_defn
 						{
-							l.flow("module_decl_list: (start)");
+							l.flow("design_statement: module_defn");
 						}
-					| module_decl_list module_decl
+					| module_decl
 						{
-							l.flow("module_decl_list: (continuation)");
+							l.flow("design_statement: module_decl");
+						}
+					| statement_named_ref_net_decl
+						{
+							l.flow("design_statement: statement_named_ref_net_decl");
+						}
+					| statement_named_ref_decl
+						{
+							l.flow("design_statement: statement_named_ref_decl");
 						}
 					;
 
-module_decl			: module identifier lparen rparen lcurly module_body rcurly
+module_defn			: module identifier '(' ')' '{' module_body '}' ';'
+						{
+							l.flow("module_defn: (empty port list) %s", $2.c_str());
+						}
+		   			| module identifier '(' module_port_list ')' '{' module_body '}' ';'
+						{
+							l.flow("module_defn: (non-empty port list) %s", $2.c_str());
+						}
+		   			;
+
+module_decl			: module identifier '(' ')' ';'
 						{
 							l.flow("module_decl: (empty port list) %s", $2.c_str());
 						}
-		   			| module identifier lparen module_port_list rparen lcurly module_body rcurly
+					| module identifier '(' module_port_list ')' ';'
 						{
 							l.flow("module_decl: (non-empty port list) %s", $2.c_str());
 						}
-		   			;
+					;
 
 module_port_list	: module_port
 						{
 							l.flow("module_port_list: (start)");
 						}
-					| module_port_list comma module_port
+					| module_port_list ',' module_port
 						{
 							l.flow("module_port_list: (continuation)");
 						}
@@ -175,24 +204,25 @@ statement			: statement_named_ref_net_decl
 						}
 		 			;
 
-statement_named_ref_net_decl		: net_type statement_named_ref_net_decl_list semicolon
+statement_named_ref_net_decl		: net_type statement_named_ref_net_decl_list ';'
 									;
 
 statement_named_ref_net_decl_list	: identifier
 								 	| identifier opLtDash expr
-								 	| statement_named_ref_net_decl_list comma identifier
-								 	| statement_named_ref_net_decl_list comma identifier opLtDash expr
+								 	| statement_named_ref_net_decl_list ',' identifier
+								 	| statement_named_ref_net_decl_list ',' identifier opLtDash expr
 								 	;
 
-statement_named_ref_decl			: type statement_named_ref_decl_list semicolon;
+statement_named_ref_decl			: type statement_named_ref_decl_list ';'
+									;
 
 statement_named_ref_decl_list		: identifier
-							 		| identifier opEq expr
-							 		| statement_named_ref_decl_list comma identifier
-							 		| statement_named_ref_decl_list comma identifier opEq expr
+							 		| identifier '=' expr
+							 		| statement_named_ref_decl_list ',' identifier
+							 		| statement_named_ref_decl_list ',' identifier '=' expr
 							 		;
 
-statement_assignment				: identifier opLtDash expr semicolon
+statement_assignment				: identifier opLtDash expr ';'
 									;
 
 expr			: expr_named_ref
