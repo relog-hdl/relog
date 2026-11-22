@@ -77,16 +77,18 @@ target_compile_options(${PROJECT_NAME}
 
 target_sources(${PROJECT_NAME}
 	PRIVATE
+		src/lib/io/source_file.cpp
 		src/service/logging/logger_backend_terminal.cpp
 		src/service/logging/logger_formatter_terminal.cpp
 		src/service/logging/loggerf.cpp
+		src/service/source/source_stack.cpp
+		src/bootstrap/opts.cpp
+		src/bootstrap/bootstrap.cpp
 		src/pipeline/pipeline.cpp
 		${LEXER_PATH_TMPLT}.cpp
 		src/pipeline/phase/lex/lexer.cpp
 		${PARSER_PATH_TMPLT}.cpp
 		src/pipeline/phase/parse/parser.cpp
-		src/bootstrap/opts.cpp
-		src/bootstrap/bootstrap.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
