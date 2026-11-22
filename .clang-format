@@ -58,7 +58,7 @@ SpaceBeforeParensOptions:
   AfterRequiresInClause: true
   AfterRequiresInExpression: true
   BeforeNonEmptyParentheses: false
-SpaceBeforeRangeBasedForLoopColon: false
+SpaceBeforeRangeBasedForLoopColon: true
 SpaceBeforeSquareBrackets: false
 SpacesInAngles: Never
 SpacesInContainerLiterals: false
