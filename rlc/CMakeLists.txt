@@ -26,6 +26,7 @@ bison_target(
 	"${PARSER_PATH_TMPLT}"
 	"${PARSER_PATH_TMPLT}.cpp"
 	DEFINES_FILE "${PARSER_PATH_TMPLT}.hpp"
+	OPTIONS -Wcounterexamples
 )
 
 add_flex_bison_dependency(lexer parser)
