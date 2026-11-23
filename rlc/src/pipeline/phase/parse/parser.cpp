@@ -3,6 +3,8 @@
 namespace relog::pipeline::parse
 {
 
+Parser::Parser(Pipeline& pipeline_, relog::pipeline::lex::Lexer& lexer_) : Parser_BisonParser(*this, lexer_), pl(pipeline_) {}
+
 void
 Parser::error(const std::string& message)
 {

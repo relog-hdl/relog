@@ -43,7 +43,7 @@ class Parser final : public Parser_BisonParser
 		Pipeline& pl;
 
 	public:
-		Parser(Pipeline& pipeline_, relog::pipeline::lex::Lexer& lexer_) : Parser_BisonParser(*this, lexer_), pl(pipeline_) {}
+		Parser(Pipeline& pipeline_, relog::pipeline::lex::Lexer& lexer_);
 
 		[[noreturn]] void error(const std::string& message);
 

@@ -15,8 +15,6 @@ namespace relog::service::logging
 class LoggerFormatterTerminalPlain final : public LoggerFormatter<std::string>
 {
 	public:
-		LoggerFormatterTerminalPlain() = default;
-
 		virtual ~LoggerFormatterTerminalPlain() = default;
 
 		std::string format(LogDomainProxy<std::string> domain, LogLevel level, std::string message) override;
