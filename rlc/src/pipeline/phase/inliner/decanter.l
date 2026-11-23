@@ -86,6 +86,8 @@ SL      "\""([^"\\]|\\.)*\"
 
 <ctxMultilineComment>{NL}
 
+\\{NL}
+
 <<EOF>> {
 	l.flow("eof");
 	yyterminate();
