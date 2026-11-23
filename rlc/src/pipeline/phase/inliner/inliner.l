@@ -34,7 +34,29 @@
 %option yyclass="Inliner"
 %option prefix="Inliner_"
 
+/* whitespace */
+WS      [ \t]
+
+/* newline */
+NL      (\r\n|\r|\n)
+
+%x ctxPreprocessor
+
 %%
+
+^{WS}*\# {
+	l.flow("begin preprocessor directive");
+	BEGINCONTEXT(ctxPreprocessor);
+}
+
+<ctxPreprocessor>{NL} {
+	l.flow("end preprocessor directive");
+	ENDCONTEXT();
+}
+
+<ctxPreprocessor>[^\n]* {
+	l.flow("preprocessor directive: %s", yytext);
+}
 
 <<EOF>> {
 	l.flow("eof");
