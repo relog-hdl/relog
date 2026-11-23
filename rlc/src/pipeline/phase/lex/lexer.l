@@ -65,8 +65,6 @@ SL      "\""([^"\\]|\\.)*\"
 /* character literal */
 CL      \'([^'\\]|\\.)*\'
 
-%x ctxMultilineComment
-
 %%
 
 {ID} {
@@ -221,34 +219,6 @@ module/{TS} {
 	l.flow("separator: %c", yytext[0]);
 	return yytext[0];
 }
-
-<*>"//"[^\n]* {
-	if(YY_START == ctxMultilineComment)
-		REJECT;
-	l.flow("comment: %s", yytext);
-}
-
-<*>"/*" {
-	if(YY_START == ctxMultilineComment)
-		REJECT;
-	l.flow("begin multiline comment");
-	BEGINCONTEXT(ctxMultilineComment);
-}
-
-<ctxMultilineComment>"*/" {
-	l.flow("end multiline comment");
-	ENDCONTEXT();
-}
-
-<ctxMultilineComment>[^*/\n]* {
-	l.flow("multi-line comment: %s", yytext);
-}
-
-<ctxMultilineComment>\*
-
-<ctxMultilineComment>\/
-
-<ctxMultilineComment>{NL}
 
 {WS}
 

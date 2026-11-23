@@ -19,6 +19,8 @@
 
 	#define yyterminate() return DECANTER_END;
 
+	#define DECANTER_WS " "
+
 	#define BEGINCONTEXT(ctx) {\
 		yy_push_state(ctx);\
 		l.flow("begin context");\
@@ -39,7 +41,50 @@
 %option yyclass="Decanter"
 %option prefix="Decanter_"
 
+/* newline */
+NL      (\r\n|\r|\n)
+
+/* string literal, need to recognize because comments don't count
+                   inside of string literals                      */
+SL      "\""([^"\\]|\\.)*\"
+
+%x ctxMultilineComment
+
 %%
+
+{SL} {
+	yyout << yytext;
+}
+
+<*>"//"[^\n]* {
+	if(YY_START == ctxMultilineComment)
+		REJECT;
+	yyout << DECANTER_WS;
+	l.flow("comment: %s", yytext);
+}
+
+<*>"/*" {
+	if(YY_START == ctxMultilineComment)
+		REJECT;
+	l.flow("begin multiline comment");
+	BEGINCONTEXT(ctxMultilineComment);
+}
+
+<ctxMultilineComment>"*/" {
+	l.flow("end multiline comment");
+	yyout << DECANTER_WS;
+	ENDCONTEXT();
+}
+
+<ctxMultilineComment>[^*/\n]* {
+	l.flow("multi-line comment: %s", yytext);
+}
+
+<ctxMultilineComment>\*
+
+<ctxMultilineComment>\/
+
+<ctxMultilineComment>{NL}
 
 <<EOF>> {
 	l.flow("eof");
