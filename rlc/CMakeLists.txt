@@ -23,9 +23,16 @@ set(PARSE_PHASE_DIR "${PIPELINE_PHASE_DIR}/parse")
 find_package(FLEX REQUIRED)
 find_package(BISON REQUIRED)
 
+set(DECANTER_PATH_TMPLT "${INLINE_PHASE_DIR}/decanter.l")
 set(INLINER_PATH_TMPLT "${INLINE_PHASE_DIR}/inliner.l")
 set(LEXER_PATH_TMPLT "${LEX_PHASE_DIR}/lexer.l")
 set(PARSER_PATH_TMPLT "${PARSE_PHASE_DIR}/parser.y")
+
+flex_target(
+	decanter
+	"${DECANTER_PATH_TMPLT}"
+	"${DECANTER_PATH_TMPLT}.cpp"
+)
 
 flex_target(
 	inliner
@@ -93,6 +100,8 @@ target_sources(${PROJECT_NAME}
 		src/bootstrap/opts.cpp
 		src/bootstrap/bootstrap.cpp
 		src/pipeline/pipeline.cpp
+		${DECANTER_PATH_TMPLT}.cpp
+		src/pipeline/phase/inliner/decanter.cpp
 		${INLINER_PATH_TMPLT}.cpp
 		src/pipeline/phase/inliner/inliner.cpp
 		${LEXER_PATH_TMPLT}.cpp

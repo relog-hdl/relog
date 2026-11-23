@@ -8,12 +8,14 @@
 #ifndef RELOG_PIPELINE_INLINER_INLINER_HPP
 #define RELOG_PIPELINE_INLINER_INLINER_HPP
 
+#include <pipeline/phase/inliner/decanter.hpp>
 #include <pipeline/pipeline.hpp>
 
 #include <service/logging/log_domain.hxx>
 #include <service/logging/loggerf.hpp>
 
 #include <iostream>
+#include <sstream>
 
 // clang-format off
 /**
@@ -61,10 +63,15 @@ class Inliner final : public yyFlexLexer
 
 	protected:
 		relog::pipeline::Pipeline& pl;
+		relog::pipeline::inliner::Decanter& dctr;
 		std::ostream& os;
 
+		std::stringbuf d2i_buf;
+		std::ostream d2i_buf_in;
+		std::istream d2i_buf_out;
+
 	public:
-		Inliner(relog::pipeline::Pipeline& pipeline, std::ostream& out);
+		Inliner(relog::pipeline::Pipeline& pipeline, relog::pipeline::inliner::Decanter& decanter, std::ostream& out);
 
 		virtual int get_next_token();
 
@@ -73,6 +80,9 @@ class Inliner final : public yyFlexLexer
 		int yywrap();
 
 		[[noreturn]] void LexerError(const char* msg);
+
+	protected:
+		void runDecanter();
 };
 
 } // namespace relog::pipeline::inliner

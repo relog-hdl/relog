@@ -41,6 +41,7 @@ Pipeline::init_logging()
 int
 Pipeline::entrypoint()
 {
+	using relog::pipeline::inliner::Decanter;
 	using relog::pipeline::inliner::Inliner;
 	using relog::pipeline::lex::Lexer;
 	using relog::pipeline::parse::Parser;
@@ -53,7 +54,8 @@ Pipeline::entrypoint()
 	std::ostream i2l_buf_in{&i2l_buf};
 	std::istream i2l_buf_out{&i2l_buf};
 
-	Inliner inliner{self, i2l_buf_in};
+	Decanter decanter{self};
+	Inliner inliner{self, decanter, i2l_buf_in};
 
 	inliner.run();
 
