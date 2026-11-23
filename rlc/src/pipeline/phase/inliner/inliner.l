@@ -40,7 +40,15 @@ WS      [ \t]
 /* newline */
 NL      (\r\n|\r|\n)
 
+/* token separator */
+TS      [^_0-9a-zA-Z]
+
+/* string literal */
+SL      "\""([^"\\]|\\.)*\"
+
 %x ctxPreprocessor
+
+%x ctxInclude
 
 %%
 
@@ -54,8 +62,22 @@ NL      (\r\n|\r|\n)
 	ENDCONTEXT();
 }
 
-<ctxPreprocessor>[^\n]* {
-	l.flow("preprocessor directive: %s", yytext);
+<ctxPreprocessor>include/{TS} {
+	BEGINCONTEXT(ctxInclude);
+}
+
+<ctxInclude>{WS}
+
+<ctxInclude>\"([^\"\r\n]|\\\")*\"{WS}*{NL} {
+	ENDCONTEXT();
+	ENDCONTEXT(); // also pop ctxPreprocessor context
+	handleInclude(yytext);
+}
+
+<ctxInclude>\<([^\<\>\r\n]|\\\<|\\\>)*\>{WS}*{NL} {
+	ENDCONTEXT();
+	ENDCONTEXT(); // also pop ctxPreprocessor context
+	handleInclude(yytext);
 }
 
 <<EOF>> {

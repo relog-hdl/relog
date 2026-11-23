@@ -2,6 +2,8 @@
 #define RELOG_LIB_IO_SOURCE_FILE_HPP
 
 #include <fstream>
+#include <iostream>
+#include <sstream>
 
 namespace relog::lib
 {
@@ -9,6 +11,9 @@ namespace relog::lib
 class SourceFile
 {
 	protected:
+		std::stringbuf buffer;
+		std::ostream writestream;
+		std::istream readstream;
 		std::ifstream filestream;
 		std::string filename;
 
@@ -18,6 +23,12 @@ class SourceFile
 		virtual ~SourceFile() = default;
 
 		std::string getFilename();
+
+		std::ostream& getWritestream();
+
+		std::istream& getReadstream();
+
+		bool bufferEmpty();
 
 		std::ifstream& getFilestream();
 };

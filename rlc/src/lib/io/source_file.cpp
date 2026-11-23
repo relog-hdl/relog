@@ -1,12 +1,13 @@
 #include "source_file.hpp"
 
 #include <fstream>
+#include <iostream>
 #include <stdexcept>
 
 namespace relog::lib
 {
 
-SourceFile::SourceFile(char* filename_) : filestream(filename_, std::ios::in), filename(filename_)
+SourceFile::SourceFile(char* filename_) : buffer(std::ios::in | std::ios::out), writestream(&buffer), readstream(&buffer), filestream(filename_, std::ios::in), filename(filename_)
 {
 	if(!filestream)
 	{
@@ -20,6 +21,24 @@ std::string
 SourceFile::getFilename()
 {
 	return filename;
+}
+
+std::ostream&
+SourceFile::getWritestream()
+{
+	return writestream;
+}
+
+std::istream&
+SourceFile::getReadstream()
+{
+	return readstream;
+}
+
+bool
+SourceFile::bufferEmpty()
+{
+	return buffer.view().empty();
 }
 
 std::ifstream&

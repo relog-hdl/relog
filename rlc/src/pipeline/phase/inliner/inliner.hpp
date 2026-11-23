@@ -66,10 +66,6 @@ class Inliner final : public yyFlexLexer
 		relog::pipeline::inliner::Decanter& dctr;
 		std::ostream& os;
 
-		std::stringbuf d2i_buf;
-		std::ostream d2i_buf_in;
-		std::istream d2i_buf_out;
-
 	public:
 		Inliner(relog::pipeline::Pipeline& pipeline, relog::pipeline::inliner::Decanter& decanter, std::ostream& out);
 
@@ -83,6 +79,10 @@ class Inliner final : public yyFlexLexer
 
 	protected:
 		void runDecanter();
+
+		void handleInclude(char* inc_str);
+
+		void include(bool external, std::string path);
 };
 
 } // namespace relog::pipeline::inliner
