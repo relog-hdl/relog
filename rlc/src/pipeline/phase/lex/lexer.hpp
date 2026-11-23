@@ -17,6 +17,8 @@
 #include <pipeline/phase/parse/parser.y.hpp> // this is needed for symbol_type
 #include <pipeline/phase/parse/parser.hpp>
 
+#include <iostream>
+
 /**
  * Generated Flex class name is yyFlexLexer by default. If we want to use more flex-generated
  * classes we should name them differently. See lexer.l prefix option.
@@ -62,14 +64,13 @@ class Lexer final : public yyFlexLexer
 		relog::service::logging::Loggerf& l = get_logger();
 
 	protected:
-		Pipeline& pl;
+		relog::pipeline::Pipeline& pl;
+		std::istream& is;
 
 	public:
-		Lexer(Pipeline& pipeline);
+		Lexer(relog::pipeline::Pipeline& pipeline, std::istream& in);
 
 		virtual relog::pipeline::parse::Parser::symbol_type get_next_token();
-
-		int yywrap();
 
 		[[noreturn]] void LexerError(const char* msg);
 };

@@ -1,5 +1,6 @@
 #include "pipeline.hpp"
 
+#include <pipeline/phase/inliner/inliner.hpp>
 #include <pipeline/phase/lex/lexer.hpp>
 #include <pipeline/phase/parse/parser.hpp>
 
@@ -7,6 +8,9 @@
 #include <service/logging/logger_backend_terminal.hpp>
 #include <service/logging/logger_formatter_terminal.hpp>
 #include <service/logging/loggerf.hpp>
+
+#include <iostream>
+#include <sstream>
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
@@ -37,13 +41,23 @@ Pipeline::init_logging()
 int
 Pipeline::entrypoint()
 {
+	using relog::pipeline::inliner::Inliner;
 	using relog::pipeline::lex::Lexer;
 	using relog::pipeline::parse::Parser;
 
 	if(ssc.empty())
 		return 0;
 
-	Lexer lexer{self};
+	std::stringbuf i2l_buf{std::ios::in | std::ios::out};
+
+	std::ostream i2l_buf_in{&i2l_buf};
+	std::istream i2l_buf_out{&i2l_buf};
+
+	Inliner inliner{self, i2l_buf_in};
+
+	inliner.run();
+
+	Lexer lexer{self, i2l_buf_out};
 	Parser parser{self, lexer};
 
 	parser.parse();

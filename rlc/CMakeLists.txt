@@ -13,6 +13,7 @@ set(PROJECT_VERSION_TAG "dev")
 
 set(PIPELINE_DIR "${PROJECT_SOURCE_DIR}/src/pipeline")
 set(PIPELINE_PHASE_DIR "${PIPELINE_DIR}/phase")
+set(INLINE_PHASE_DIR "${PIPELINE_PHASE_DIR}/inliner")
 set(LEX_PHASE_DIR "${PIPELINE_PHASE_DIR}/lex")
 set(PARSE_PHASE_DIR "${PIPELINE_PHASE_DIR}/parse")
 
@@ -22,8 +23,15 @@ set(PARSE_PHASE_DIR "${PIPELINE_PHASE_DIR}/parse")
 find_package(FLEX REQUIRED)
 find_package(BISON REQUIRED)
 
+set(INLINER_PATH_TMPLT "${INLINE_PHASE_DIR}/inliner.l")
 set(LEXER_PATH_TMPLT "${LEX_PHASE_DIR}/lexer.l")
 set(PARSER_PATH_TMPLT "${PARSE_PHASE_DIR}/parser.y")
+
+flex_target(
+	inliner
+	"${INLINER_PATH_TMPLT}"
+	"${INLINER_PATH_TMPLT}.cpp"
+)
 
 flex_target(
 	lexer
@@ -85,6 +93,8 @@ target_sources(${PROJECT_NAME}
 		src/bootstrap/opts.cpp
 		src/bootstrap/bootstrap.cpp
 		src/pipeline/pipeline.cpp
+		${INLINER_PATH_TMPLT}.cpp
+		src/pipeline/phase/inliner/inliner.cpp
 		${LEXER_PATH_TMPLT}.cpp
 		src/pipeline/phase/lex/lexer.cpp
 		${PARSER_PATH_TMPLT}.cpp

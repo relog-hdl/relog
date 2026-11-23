@@ -26,6 +26,10 @@
 /* disable stdout printouts */
 %option nodefault
 
+/* end of stream is handled by inliner, when eof is encountered
+   that means lexer's job is finished and yyterminate should be called */
+%option noyywrap
+
 %option c++
 %option yyclass="Lexer"
 %option prefix="Lexer_"
@@ -246,7 +250,3 @@ module/{TS} {
 }
 
 %%
-
-int Lexer_FlexLexer::yywrap() {
-	return 1;
-}
