@@ -21,6 +21,16 @@
 	#define yyterminate() return relog::pipeline::parse::Parser::make_END();
 
 	using relog::pipeline::parse::Parser;
+
+	#define BEGINCONTEXT(ctx) {\
+		yy_push_state(ctx);\
+		l.flow("begin context");\
+	}
+
+	#define ENDCONTEXT() {\
+		yy_pop_state();\
+		l.flow("end context");\
+	}
 %}
 
 /* disable stdout printouts */
@@ -212,22 +222,22 @@ module/{TS} {
 	return yytext[0];
 }
 
-{WS}
-
-{NL}
-
-"//"[^\n]* {
+<*>"//"[^\n]* {
+	if(YY_START == ctxMultilineComment)
+		REJECT;
 	l.flow("comment: %s", yytext);
 }
 
-"/*" {
+<*>"/*" {
+	if(YY_START == ctxMultilineComment)
+		REJECT;
 	l.flow("begin multiline comment");
-	BEGIN(ctxMultilineComment);
+	BEGINCONTEXT(ctxMultilineComment);
 }
 
 <ctxMultilineComment>"*/" {
 	l.flow("end multiline comment");
-	BEGIN(INITIAL);
+	ENDCONTEXT();
 }
 
 <ctxMultilineComment>[^*/\n]* {
@@ -239,6 +249,10 @@ module/{TS} {
 <ctxMultilineComment>\/
 
 <ctxMultilineComment>{NL}
+
+{WS}
+
+{NL}
 
 . {
 	l.warning("unknown character");
