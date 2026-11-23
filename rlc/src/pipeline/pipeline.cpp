@@ -12,8 +12,6 @@
 #include <iostream>
 #include <sstream>
 
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-
 namespace relog::pipeline
 {
 
