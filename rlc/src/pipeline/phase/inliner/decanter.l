@@ -56,7 +56,7 @@ SL      "\""([^"\\]|\\.)*\"
 	yyout << yytext;
 }
 
-<*>"//"[^\n]* {
+<*>"//"([^\n]|\\\n|\\\r\n)* {
 	if(YY_START == ctxMultilineComment)
 		REJECT;
 	yyout << DECANTER_WS;
@@ -76,7 +76,7 @@ SL      "\""([^"\\]|\\.)*\"
 	ENDCONTEXT();
 }
 
-<ctxMultilineComment>[^*/\n]* {
+<ctxMultilineComment>[^*/\r\n]* {
 	l.flow("multi-line comment: %s", yytext);
 }
 
