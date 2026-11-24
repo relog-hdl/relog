@@ -50,6 +50,8 @@ SL      "\""([^"\\]|\\.)*\"
 
 %x ctxMultilineComment
 
+%x ctxCodeDisablingComment
+
 %%
 
 {SL} {
@@ -57,17 +59,24 @@ SL      "\""([^"\\]|\\.)*\"
 }
 
 <*>"//"([^\n]|\\\n|\\\r\n)* {
-	if(YY_START == ctxMultilineComment)
+	if(YY_START == ctxMultilineComment || YY_START == ctxCodeDisablingComment)
 		REJECT;
 	yyout << DECANTER_WS;
 	l.flow("comment: %s", yytext);
 }
 
 <*>"/*" {
-	if(YY_START == ctxMultilineComment)
+	if(YY_START == ctxMultilineComment || YY_START == ctxCodeDisablingComment)
 		REJECT;
 	l.flow("begin multiline comment");
 	BEGINCONTEXT(ctxMultilineComment);
+}
+
+<*>"/---" {
+	if(YY_START == ctxMultilineComment)
+		REJECT;
+	l.flow("begin code disabling comment");
+	BEGINCONTEXT(ctxCodeDisablingComment);
 }
 
 <ctxMultilineComment>"*/" {
@@ -76,7 +85,7 @@ SL      "\""([^"\\]|\\.)*\"
 	ENDCONTEXT();
 }
 
-<ctxMultilineComment>[^*/\r\n]* {
+<ctxMultilineComment>[^\*\/\r\n]* {
 	l.flow("multi-line comment: %s", yytext);
 }
 
@@ -85,6 +94,22 @@ SL      "\""([^"\\]|\\.)*\"
 <ctxMultilineComment>\/
 
 <ctxMultilineComment>{NL}
+
+<ctxCodeDisablingComment>"---/" {
+	l.flow("end code disabling comment");
+	yyout << DECANTER_WS;
+	ENDCONTEXT();
+}
+
+<ctxCodeDisablingComment>[^\-\/\r\n]* {
+	l.flow("code-disabling comment: %s", yytext);
+}
+
+<ctxCodeDisablingComment>\-
+
+<ctxCodeDisablingComment>\/
+
+<ctxCodeDisablingComment>{NL}
 
 \\{NL}
 
