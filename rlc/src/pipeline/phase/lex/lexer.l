@@ -90,6 +90,22 @@ for/{TS} {
 	return Parser::make_for();
 }
 
+init/{TS} {
+	return Parser::make_init();
+}
+
+rise/{TS} {
+	return Parser::make_rise();
+}
+
+fall/{TS} {
+	return Parser::make_fall();
+}
+
+edge/{TS} {
+	return Parser::make_edge();
+}
+
 wire|wand|wor|tri|triand|trior|tri0|tri1|supply0|supply1/{TS} {
 	l.flow("net: %s", yytext);
 	return Parser::make_net(yytext);

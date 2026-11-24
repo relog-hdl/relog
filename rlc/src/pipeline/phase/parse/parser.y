@@ -81,6 +81,11 @@
 %token do;
 %token for;
 
+%token init;
+%token rise;
+%token fall;
+%token edge;
+
 %token <std::string> identifier;
 %token <std::string> net;
 %token reg;
@@ -149,43 +154,43 @@
 %type <std::string> net_direction
 %type <std::string> type
 
-%start design
+%start description_text
 
 %%
 
-design				: design_statement_list
-						{
-							l.flow("design: design_statement_list");
-						}
-	   				| %empty
-						{
-							l.flow("design: %%empty");
-						}
-	   				;
+description_text			: top_level_statement_list
+								{
+									l.flow("description_text: top_level_statement_list");
+								}
+							| %empty
+								{
+									l.flow("description_text: %%empty");
+								}
+							;
 
-design_statement_list	: design_statement
-							{
-								l.flow("design_statement_list: (start)");
-							}
-						| design_statement_list design_statement
-							{
-								l.flow("design_statement_list: (continuation)");
-							}
-						;
+top_level_statement_list	: top_level_statement
+								{
+									l.flow("top_level_statement_list: (start)");
+								}
+							| top_level_statement_list top_level_statement
+								{
+									l.flow("top_level_statement_list: (continuation)");
+								}
+							;
 
-design_statement	: module_defn
-						{
-							l.flow("design_statement: module_defn");
-						}
-					| module_decl
-						{
-							l.flow("design_statement: module_decl");
-						}
-					| statement_decl
-						{
-							l.flow("design_statement: statement_decl");
-						}
-					;
+top_level_statement			: module_defn
+								{
+									l.flow("top_level_statement: module_defn");
+								}
+							| module_decl
+								{
+									l.flow("top_level_statement: module_decl");
+								}
+							| statement_decl
+								{
+									l.flow("top_level_statement: statement_decl");
+								}
+							;
 
 module_defn			: module identifier '(' ')' '{' module_body '}' ';'
 						{
@@ -286,6 +291,18 @@ statement			: statement_empty
 						{
 							l.flow("statement: statement_for_loop");
 						}
+					| statement_at_init
+						{
+							l.flow("statement: statement_at_init");
+						}
+					| statement_at_event
+						{
+							l.flow("statement: statement_at_event");
+						}
+					| statement_at_every
+						{
+							l.flow("statement: statement_at_every");
+						}
 		 			;
 
 statement_if_cond		: if '(' expr ')' statement_loop_cond %prec IF_STMT
@@ -300,6 +317,28 @@ statement_do_while_loop	: do statement_loop_cond while '(' expr ')' ';'
 
 statement_for_loop		: for '(' assignment_blocking ';' expr ';' assignment_blocking ')' statement_loop_cond
 						;
+
+statement_at_init		: '@' init '{' statement_list_opt '}'
+						;
+
+statement_at_event		: at_event_specifier_list ';'
+
+statement_at_every		: at_event_specifier_list '{' statement_list_opt '}'
+
+at_event_specifier_list		: at_event_specifier
+							| at_event_specifier_list ',' at_event_specifier
+							;
+
+at_event_specifier			: '@' at_event_edge at_event_signal
+							| '@' at_event_signal
+							;
+
+at_event_edge				: rise
+							| fall
+							;
+
+at_event_signal				: expr
+							;
 
 statement_decl						: decl ';'
 									;
