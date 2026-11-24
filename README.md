@@ -130,3 +130,47 @@ control flow
 
 \*note that the names of the phases have been chosen carefully to make their
 order, when sorted alphabetically by name, the same as their execution order
+
+## Practical Considerations
+
+### Building
+
+This project uses CMake, so building it is trivial:
+
+```
+cmake .
+make -j4	# or replace with reasonable amount of threads
+```
+
+GNU Flex and Bison are required and can usually be obtained through your
+package manager as `flex` and `bison` packages, respectively.
+
+Git, if installed, is used to extract current branch and commit hash for the
+version header. The version header is updated on each CMake re-configuration.
+
+### Running
+
+The main executable is generated inside the `rlc` directory. Provide it with
+as many source files as you wish to and watch it do stuff.
+
+Currently, it only spits out debugging information about the tokens it found
+and how it parsed them. Not all tokens you would expect to be parsed will be
+parsed, and not all parsed tokens will print out debugging information.
+
+### Contributing
+
+You should probably run pre-commit hooks installation first:
+
+```
+pre-commit install
+```
+
+These are there not so much as an official 'holy grail' style guide that
+_every_ commit _must_ adhere to, as they are a starting point for what style
+this project considers reasonable. Sometimes ignoring them is necessary to
+produce code that is actually good. Use your own judgement.
+
+Same goes for compiler warnings that are treated as errors. Use `#pragma`
+statements to ignore when necessary to write good code. (No, Mr. Compiler,
+I don't care that a bison-generated variable that I can affect in no way
+whatsoever shadowed my logger, now shut up)
