@@ -28,17 +28,22 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 
-	namespace relog::pipeline::lex {
+	namespace relog::pipeline::lex
+	{
 		class Lexer;
 	}
 
-	namespace relog::pipeline::parse {
+	namespace relog::pipeline::parse
+	{
 		class Parser;
 	}
 }
 
 %code top
 {
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wshadow"
+
 	#include <pipeline/phase/lex/lexer.hpp>
 	#include <pipeline/phase/parse/parser.y.hpp>
 	#include <pipeline/phase/parse/parser.hpp>
@@ -46,7 +51,8 @@
 	using relog::pipeline::lex::Lexer;
 	using namespace relog::pipeline::parse;
 
-	static Parser::symbol_type yylex(Lexer &lexer) {
+	static Parser::symbol_type yylex(Lexer &lexer)
+	{
 		return lexer.get_next_token();
 	}
 }
@@ -54,19 +60,7 @@
 %lex-param { relog::pipeline::lex::Lexer &lexer }
 %parse-param { relog::pipeline::parse::Parser &self }
 %parse-param { relog::pipeline::lex::Lexer &lexer }
-
-/* An extremely dirty hack to get logger injected into token handlers */
-
-%{
-#define CLOSE_SCOPE }
-#define OPEN_SCOPE  {
-%}
-
-%initial-action {
-	CLOSE_SCOPE
-	relog::service::logging::Loggerf& l = self.l;
-	OPEN_SCOPE
-}
+%parse-param { relog::service::logging::Loggerf &l }
 
 %define parse.trace
 %define parse.error verbose
@@ -461,6 +455,9 @@ net_direction	: input
 
 %%
 
-void Parser_BisonParser::error(const std::string &message) {
+void Parser_BisonParser::error(const std::string &message)
+{
 	std::cout << "Error: " << message << std::endl;
 }
+
+#pragma GCC diagnostic pop
