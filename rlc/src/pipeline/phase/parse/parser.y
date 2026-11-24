@@ -152,7 +152,7 @@
 %right UNARYPLUS UNARYMINUS '!' '~' UNARYAMP "~&" UNARYPIPE "^|" UNARYCARET "~^"
 
 %type <std::string> net_direction
-%type <std::string> type
+//%type <std::string> type
 
 %start description_text
 
@@ -346,6 +346,7 @@ statement_decl						: decl ';'
 statement_assignment				: assignment ';'
 									;
 
+/*
 statement_assignment_transfer		: assignment_transfer ';'
 									;
 
@@ -357,6 +358,7 @@ statement_assignment_blocking		: assignment_blocking ';'
 
 statement_assignment_nonblocking	: assignment_nonblocking ';'
 									;
+*/
 
 statement_empty						: ';'
 									;
@@ -388,9 +390,11 @@ assignment							: assignment_continous
 									| assignment_nonblocking
 									;
 
+/*
 assignment_transfer					: assignment_blocking
 									| assignment_nonblocking
 									;
+*/
 
 assignment_continous				: identifier "<-" expr
 									;
@@ -461,12 +465,14 @@ number			: signed_number
 				| unsigned_number number_base unsigned_number
 				;
 
+/*
 type			: identifier
 					{
 						$$ = $1;
 						l.flow("type: %s", $1.c_str());
 					}
 				;
+*/
 
 range_opt		: range
 				| %empty
