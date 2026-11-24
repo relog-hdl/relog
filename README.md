@@ -174,3 +174,118 @@ Same goes for compiler warnings that are treated as errors. Use `#pragma`
 statements to ignore when necessary to write good code. (No, Mr. Compiler,
 I don't care that a bison-generated variable that I can affect in no way
 whatsoever shadowed my logger, now shut up)
+
+## Relog Examples
+
+Comments:
+
+```
+// Single-line
+
+/*
+ * Multi-line
+ */
+
+// Code-disabling:
+/---
+module test(input foo, output bar) {
+/---
+	bar <- foo;
+---/
+}
+---/ // They can nest without an error!
+```
+
+Preprocessor directives:
+
+```
+#include "file.rl"
+#include <file.rl>
+// Currently the same thing
+
+#define
+// Not supported yet, will kill the preprocessor
+```
+
+Module declarations:
+
+```
+module foobar();
+```
+
+Module definitions (different thing!):
+
+```
+module foobar(input a, output b) {
+	b <- a; // this is a continous assignment
+	        // same as verilog's assign b = a;
+}
+```
+
+Net/reg declarations:
+
+```
+wire i_am_a_wire;
+wire [15:0] i_am_a_16_bit_bus;
+
+reg i_am_a_register;
+reg [31:0] i_am_a_32_bit_register;
+
+input reg [63:0] i_am_a_64_bit_input_register;
+
+trireg and_i_like_trains; // shwoooooom
+                          // (that is, the parser dies x_x)
+```
+
+Assignments:
+
+```
+foo <- bar; // continous
+foo = bar;  // blocking
+foo <= bar; // non-blocking
+```
+
+Standard constructs:
+
+```
+if(...)
+	if(...)
+		...;
+	else
+		...;
+// same old dangling else behavior
+
+// curly braces are also legal, as you would expect:
+for(...) {
+	...
+}
+
+// and even this is a thing:
+do
+	...;
+while(...);
+```
+
+Initial and always blocks:
+
+```
+// this is an initial block:
+@init {
+	...
+}
+
+// this is an always block:
+@rise clk, @fall rst_n {
+	...
+}
+
+// and this is a simple event control operator:
+@rise signal;
+/*          ^
+ *          |
+ *  The difference is here
+ */
+```
+
+Pretty much all there is to it at this point! Parameters are currently
+unsupported, and so are generate statements.
