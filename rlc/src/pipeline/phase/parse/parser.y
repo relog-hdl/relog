@@ -131,7 +131,7 @@
 %token '^' '&' '|' '~' '!' '+' '-' '*' '/' '%' '=';
 
 
-%token '?' ':';
+%token '?' ':' '@';
 %token '[' ']' '(' ')' '{' '}';
 %token ',' ';';
 
@@ -372,6 +372,7 @@ expr			: base
 					{
 						l.flow("expr: base");
 					}
+				| '(' expr ')'
 				| '+' base %prec UNARYPLUS
 				| '-' base %prec UNARYMINUS
 				| '!' base

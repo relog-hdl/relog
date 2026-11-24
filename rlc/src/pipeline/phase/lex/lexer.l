@@ -70,26 +70,6 @@ SL      "\""([^"\\]|\\.)*\"
 
 %%
 
-{ID} {
-	l.flow("identifier: %s", yytext);
-	return Parser::make_identifier(yytext);
-}
-
-{SN} {
-	l.flow("snum: %s", yytext);
-	return Parser::make_signed_number(yytext);
-}
-
-{UN} {
-	l.flow("unum: %s", yytext);
-	return Parser::make_unsigned_number(yytext);
-}
-
-\'(b|B|o|O|d|D|h|H) {
-	l.flow("number_base: %c", yytext[1]);
-	return Parser::make_number_base(yytext[1]);
-}
-
 if/{TS} {
 	return Parser::make_if();
 }
@@ -270,7 +250,8 @@ module/{TS} {
 	return yytext[0];
 }
 
-\?|\: {
+\?|\:|\@ {
+	//l.flow("control flow: %c", yytext[0]);
 	return yytext[0];
 }
 
@@ -282,6 +263,26 @@ module/{TS} {
 \,|\; {
 	//l.flow("separator: %c", yytext[0]);
 	return yytext[0];
+}
+
+\'(b|B|o|O|d|D|h|H) {
+	l.flow("number_base: %c", yytext[1]);
+	return Parser::make_number_base(yytext[1]);
+}
+
+{ID} {
+	l.flow("identifier: %s", yytext);
+	return Parser::make_identifier(yytext);
+}
+
+{SN} {
+	l.flow("snum: %s", yytext);
+	return Parser::make_signed_number(yytext);
+}
+
+{UN} {
+	l.flow("unum: %s", yytext);
+	return Parser::make_unsigned_number(yytext);
 }
 
 {WS}
