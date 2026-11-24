@@ -59,11 +59,14 @@ TS      [^_0-9a-zA-Z]
 /* identifier */
 ID      [_a-zA-Z]+[_0-9a-zA-Z]*
 
+/* unsigned number */
+UN      [0-9_]+[0-9_]*
+
+/* signed number */
+SN      (\+|\-)[0-9_]+[0-9_]*
+
 /* string literal */
 SL      "\""([^"\\]|\\.)*\"
-
-/* character literal */
-CL      \'([^'\\]|\\.)*\'
 
 %%
 
@@ -72,18 +75,49 @@ CL      \'([^'\\]|\\.)*\'
 	return Parser::make_identifier(yytext);
 }
 
-wire|reg|logic|tri/{TS} {
-	l.flow("net_type: %s", yytext);
-	return Parser::make_net_type(yytext);
+{SN} {
+	l.flow("snum: %s", yytext);
+	return Parser::make_signed_number(yytext);
 }
 
-input|output|inout/{TS} {
-	l.flow("net_direction: %s", yytext);
-	return Parser::make_net_direction(yytext);
+{UN} {
+	l.flow("unum: %s", yytext);
+	return Parser::make_unsigned_number(yytext);
+}
+
+\'(b|B|o|O|d|D|h|H) {
+	l.flow("number_base: %c", yytext[1]);
+	return Parser::make_number_base(yytext[1]);
+}
+
+wire|wand|wor|tri|triand|trior|tri0|tri1|supply0|supply1/{TS} {
+	l.flow("net: %s", yytext);
+	return Parser::make_net(yytext);
+}
+
+reg/{TS} {
+	l.flow("reg");
+	return Parser::make_reg();
+}
+
+trireg/{TS} {
+	l.flow("trireg");
+	return Parser::make_trireg();
+}
+
+input/{TS} {
+	return Parser::make_input();
+}
+
+output/{TS} {
+	return Parser::make_output();
+}
+
+inout/{TS} {
+	return Parser::make_inout();
 }
 
 module/{TS} {
-	l.flow("module");
 	return Parser::make_module();
 }
 
@@ -177,6 +211,26 @@ module/{TS} {
 	return Parser::make_opCaretTild();
 }
 
+"<<" {
+	l.flow("opLtLt");
+	return Parser::make_opLtLt();
+}
+
+">>" {
+	l.flow("opGtGt");
+	return Parser::make_opGtGt();
+}
+
+"<<<" {
+	l.flow("opLtLtLt");
+	return Parser::make_opLtLtLt();
+}
+
+">>>" {
+	l.flow("opGtGtGt");
+	return Parser::make_opGtGtGt();
+}
+
 \<|\> {
 	switch(yytext[0]) {
 		case '<':
@@ -191,16 +245,6 @@ module/{TS} {
 	}
 }
 
-"<<" {
-	l.flow("opShiftLeft");
-	return Parser::make_opShiftLeft();
-}
-
-">>" {
-	l.flow("opShiftRight");
-	return Parser::make_opShiftRight();
-}
-
 \^|\&|\||\~|\!|\+|\-|\*|\/|\%|\= {
 	l.flow("op: %c", yytext[0]);
 	return yytext[0];
@@ -210,13 +254,13 @@ module/{TS} {
 	return yytext[0];
 }
 
-\(|\)|\{|\} {
-	l.flow("brace: %c", yytext[0]);
+\[|\]|\(|\)|\{|\} {
+	//l.flow("brace: %c", yytext[0]);
 	return yytext[0];
 }
 
 \,|\; {
-	l.flow("separator: %c", yytext[0]);
+	//l.flow("separator: %c", yytext[0]);
 	return yytext[0];
 }
 

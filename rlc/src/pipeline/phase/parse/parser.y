@@ -76,10 +76,19 @@
 %token END 0 "eof"
 
 %token <std::string> identifier;
-%token <std::string> net_type;
-%token <std::string> net_direction;
+%token <std::string> net;
+%token reg;
+%token trireg;
+
+%token input;
+%token output;
+%token inout;
 
 %token module;
+
+%token <std::string> unsigned_number;
+%token <std::string> signed_number;
+%token <char> number_base;
 
 
 %token opGtEq ">=";
@@ -103,8 +112,10 @@
 %token lt "<";
 %token gt ">";
 
-%token opShiftLeft "<<";
-%token opShiftRight ">>";
+%token opLtLt "<<";
+%token opGtGt ">>";
+%token opLtLtLt "<<<";
+%token opGtGtGt ">>>";
 
 %token opTildAmp "~&";
 %token opCaretPipe "^|";
@@ -115,7 +126,7 @@
 
 
 %token '?' ':';
-%token '(' ')' '{' '}';
+%token '[' ']' '(' ')' '{' '}';
 %token ',' ';';
 
 %right '?' TERNARYCOND
@@ -127,11 +138,12 @@
 
 %left "==" "!=" "===" "!=="
 %left '<' '>' "=<" ">="
-%left "<<" ">>"
+%left "<<" ">>" "<<<" ">>>"
 %left '+' '-'
 %left '*' '/' '%'
 %right UNARYPLUS UNARYMINUS '!' '~' UNARYAMP "~&" UNARYPIPE "^|" UNARYCARET "~^"
 
+%type <std::string> net_direction
 %type <std::string> type
 
 %start design
@@ -170,9 +182,9 @@ design_statement	: module_defn
 						{
 							l.flow("design_statement: statement_named_ref_net_decl");
 						}
-					| statement_named_ref_decl
+					| statement_named_ref_reg_decl
 						{
-							l.flow("design_statement: statement_named_ref_decl");
+							l.flow("design_statement: statement_named_ref_reg_decl");
 						}
 					;
 
@@ -206,17 +218,17 @@ module_port_list	: module_port
 						}
 					;
 
-module_port			: net_direction identifier
+module_port			: net_direction range_optional identifier
 						{
-							l.flow("module_port: (untyped) %s %s", $1.c_str(), $2.c_str());
+							l.flow("module_port: (untyped) %s %s", $1.c_str(), $3.c_str());
 						}
-		   			| net_direction net_type identifier
+		   			| net_direction range_optional net identifier
 						{
-							l.flow("module_port: (net type) %s %s %s", $1.c_str(), $2.c_str(), $3.c_str());
+							l.flow("module_port: (net type) %s %s %s", $1.c_str(), $3.c_str(), $4.c_str());
 						}
-					| net_direction type identifier
+					| net_direction range_optional reg identifier
 						{
-							l.flow("module_port: (non-net type) %s %s %s", $1.c_str(), $2.c_str(), $3.c_str());
+							l.flow("module_port: (reg type) %s %s", $1.c_str(), $4.c_str());
 						}
 		   			;
 
@@ -244,7 +256,7 @@ statement			: statement_named_ref_net_decl
 						{
 							l.flow("statement: statement_named_ref_net_decl");
 						}
-		 			| statement_named_ref_decl
+		 			| statement_named_ref_reg_decl
 						{
 							l.flow("statement: statement_named_ref_decl");
 						}
@@ -254,7 +266,7 @@ statement			: statement_named_ref_net_decl
 						}
 		 			;
 
-statement_named_ref_net_decl		: net_type statement_named_ref_net_decl_list ';'
+statement_named_ref_net_decl		: net range_optional statement_named_ref_net_decl_list ';'
 									;
 
 statement_named_ref_net_decl_list	: identifier
@@ -263,13 +275,13 @@ statement_named_ref_net_decl_list	: identifier
 								 	| statement_named_ref_net_decl_list ',' identifier "<-" expr
 								 	;
 
-statement_named_ref_decl			: type statement_named_ref_decl_list ';'
+statement_named_ref_reg_decl		: reg range_optional statement_named_ref_reg_decl_list ';'
 									;
 
-statement_named_ref_decl_list		: identifier
+statement_named_ref_reg_decl_list	: identifier
 							 		| identifier '=' expr
-							 		| statement_named_ref_decl_list ',' identifier
-							 		| statement_named_ref_decl_list ',' identifier '=' expr
+							 		| statement_named_ref_reg_decl_list ',' identifier
+							 		| statement_named_ref_reg_decl_list ',' identifier '=' expr
 							 		;
 
 statement_assignment				: identifier "<-" expr ';'
@@ -310,6 +322,8 @@ expr			: base
 				| expr "^~" expr
 				| expr ">>" expr
 				| expr "<<" expr
+				| expr ">>>" expr
+				| expr "<<<" expr
 				| expr '?' expr ':' expr %prec TERNARYCOND
 					{
 						l.flow("expr: (ternary)");
@@ -320,12 +334,46 @@ base			: identifier
 					{
 						l.flow("base: %s", $1.c_str());
 					}
+				| const_base
+				;
+
+const_base		: number
+				;
+
+number			: signed_number
+				| unsigned_number
+				| number_base unsigned_number
+				| unsigned_number number_base unsigned_number
 				;
 
 type			: identifier
 					{
 						$$ = $1;
 						l.flow("type: %s", $1.c_str());
+					}
+				;
+
+range_optional	: range
+				| %empty
+				;
+
+range			: '[' expr ':' expr ']'
+				;
+
+net_direction	: input
+					{
+						$$ = "input";
+						l.flow("net_direction: %s", "input");
+					}
+				| output
+					{
+						$$ = "output";
+						l.flow("net_direction: %s", "output");
+					}
+				| inout
+					{
+						$$ = "inout";
+						l.flow("net_direction: %s", "inout");
 					}
 				;
 
