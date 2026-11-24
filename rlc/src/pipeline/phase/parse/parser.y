@@ -75,16 +75,22 @@
 
 %token END 0 "eof"
 
-%token <std::string> identifier;
-%token <std::string> net;
-%token reg;
-%token trireg;
+%token module;
 
 %token input;
 %token output;
 %token inout;
 
-%token module;
+%token if;
+%token else;
+%token while;
+%token do;
+%token for;
+
+%token <std::string> identifier;
+%token <std::string> net;
+%token reg;
+%token trireg;
 
 %token <std::string> unsigned_number;
 %token <std::string> signed_number;
@@ -128,6 +134,9 @@
 %token '?' ':';
 %token '[' ']' '(' ')' '{' '}';
 %token ',' ';';
+
+%nonassoc IF_STMT
+%nonassoc else
 
 %right '?' TERNARYCOND
 %left "||"
@@ -178,13 +187,9 @@ design_statement	: module_defn
 						{
 							l.flow("design_statement: module_decl");
 						}
-					| statement_named_ref_net_decl
+					| statement_decl
 						{
-							l.flow("design_statement: statement_named_ref_net_decl");
-						}
-					| statement_named_ref_reg_decl
-						{
-							l.flow("design_statement: statement_named_ref_reg_decl");
+							l.flow("design_statement: statement_decl");
 						}
 					;
 
@@ -218,29 +223,32 @@ module_port_list	: module_port
 						}
 					;
 
-module_port			: net_direction range_optional identifier
+module_port			: net_direction range_opt identifier
 						{
 							l.flow("module_port: (untyped) %s %s", $1.c_str(), $3.c_str());
 						}
-		   			| net_direction range_optional net identifier
+		   			| net_direction range_opt net identifier
 						{
 							l.flow("module_port: (net type) %s %s %s", $1.c_str(), $3.c_str(), $4.c_str());
 						}
-					| net_direction range_optional reg identifier
+					| net_direction range_opt reg identifier
 						{
 							l.flow("module_port: (reg type) %s %s", $1.c_str(), $4.c_str());
 						}
 		   			;
 
-module_body			: statement_list
-						{
-							l.flow("module_body: statement_list");
-						}
-		   			| %empty
-						{
-							l.flow("module_body: %%empty");
-						}
+module_body			: statement_list_opt
 		   			;
+
+statement_list_opt	: statement_list
+						{
+							l.flow("statement_list_opt: statement_list");
+						}
+					| %empty
+						{
+							l.flow("statement_list_opt: %%empty");
+						}
+					;
 
 statement_list		: statement
 						{
@@ -252,39 +260,112 @@ statement_list		: statement
 						}
 			  		;
 
-statement			: statement_named_ref_net_decl
+statement_loop_cond	: statement
+					| '{' statement_list_opt '}'
+					;
+
+statement			: statement_empty
 						{
-							l.flow("statement: statement_named_ref_net_decl");
+							l.flow("statement: statement_empty");
 						}
-		 			| statement_named_ref_reg_decl
+					| statement_decl
 						{
-							l.flow("statement: statement_named_ref_decl");
+							l.flow("statement: statement_decl");
 						}
 		 			| statement_assignment
 						{
 							l.flow("statement: statement_assignment");
 						}
+					| statement_if_cond
+						{
+							l.flow("statement: statement_if_cond");
+						}
+					| statement_while_loop
+						{
+							l.flow("statement: statement_while_loop");
+						}
+					| statement_do_while_loop
+						{
+							l.flow("statement: statement_do_while_loop");
+						}
+					| statement_for_loop
+						{
+							l.flow("statement: statement_for_loop");
+						}
 		 			;
 
-statement_named_ref_net_decl		: net range_optional statement_named_ref_net_decl_list ';'
+statement_if_cond		: if '(' expr ')' statement_loop_cond %prec IF_STMT
+						| if '(' expr ')' statement_loop_cond else statement_loop_cond
+						;
+
+statement_while_loop	: while '(' expr ')' statement_loop_cond
+						;
+
+statement_do_while_loop	: do statement_loop_cond while '(' expr ')' ';'
+						;
+
+statement_for_loop		: for '(' assignment_blocking ';' expr ';' assignment_blocking ')' statement_loop_cond
+						;
+
+statement_decl						: decl ';'
 									;
 
-statement_named_ref_net_decl_list	: identifier
+statement_assignment				: assignment ';'
+									;
+
+statement_assignment_transfer		: assignment_transfer ';'
+									;
+
+statement_assignment_continous		: assignment_continous ';'
+									;
+
+statement_assignment_blocking		: assignment_blocking ';'
+									;
+
+statement_assignment_nonblocking	: assignment_nonblocking ';'
+									;
+
+statement_empty						: ';'
+									;
+
+decl								: net_decl
+									| reg_decl
+									;
+
+net_decl							: net range_opt net_decl_list
+									;
+
+net_decl_list						: identifier
 								 	| identifier "<-" expr
-								 	| statement_named_ref_net_decl_list ',' identifier
-								 	| statement_named_ref_net_decl_list ',' identifier "<-" expr
+								 	| net_decl_list ',' identifier
+								 	| net_decl_list ',' identifier "<-" expr
 								 	;
 
-statement_named_ref_reg_decl		: reg range_optional statement_named_ref_reg_decl_list ';'
+reg_decl							: reg range_opt reg_decl_list
 									;
 
-statement_named_ref_reg_decl_list	: identifier
+reg_decl_list						: identifier
 							 		| identifier '=' expr
-							 		| statement_named_ref_reg_decl_list ',' identifier
-							 		| statement_named_ref_reg_decl_list ',' identifier '=' expr
+							 		| reg_decl_list ',' identifier
+							 		| reg_decl_list ',' identifier '=' expr
 							 		;
 
-statement_assignment				: identifier "<-" expr ';'
+assignment							: assignment_continous
+									| assignment_blocking
+									| assignment_nonblocking
+									;
+
+assignment_transfer					: assignment_blocking
+									| assignment_nonblocking
+									;
+
+assignment_continous				: identifier "<-" expr
+									;
+
+assignment_blocking					: identifier '=' expr
+									;
+
+assignment_nonblocking				: identifier "<=" expr
 									;
 
 expr			: base
@@ -353,7 +434,7 @@ type			: identifier
 					}
 				;
 
-range_optional	: range
+range_opt		: range
 				| %empty
 				;
 

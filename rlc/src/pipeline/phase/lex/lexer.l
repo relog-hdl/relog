@@ -90,6 +90,26 @@ SL      "\""([^"\\]|\\.)*\"
 	return Parser::make_number_base(yytext[1]);
 }
 
+if/{TS} {
+	return Parser::make_if();
+}
+
+else/{TS} {
+	return Parser::make_else();
+}
+
+while/{TS} {
+	return Parser::make_while();
+}
+
+do/{TS} {
+	return Parser::make_do();
+}
+
+for/{TS} {
+	return Parser::make_for();
+}
+
 wire|wand|wor|tri|triand|trior|tri0|tri1|supply0|supply1/{TS} {
 	l.flow("net: %s", yytext);
 	return Parser::make_net(yytext);
