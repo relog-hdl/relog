@@ -77,6 +77,10 @@
 
 %token if;
 %token else;
+%token switch;
+%token case;
+%token default;
+
 %token while;
 %token do;
 %token for;
@@ -280,6 +284,10 @@ statement			: statement_empty
 						{
 							l.flow("statement: statement_if_cond");
 						}
+					| statement_switch_cond
+						{
+							l.flow("statement: statement_switch_cond");
+						}
 					| statement_while_loop
 						{
 							l.flow("statement: statement_while_loop");
@@ -312,6 +320,23 @@ statement			: statement_empty
 
 statement_if_cond		: if '(' expr ')' statement_loop_cond %prec IF_STMT
 						| if '(' expr ')' statement_loop_cond else statement_loop_cond
+						;
+
+statement_switch_cond	: switch '(' expr ')' '{' switch_cond_case_list '}'
+
+switch_cond_case_list	: switch_cond_case
+						| switch_cond_case_list switch_cond_case
+						;
+
+switch_cond_case		: case_cond ':' statement_list_opt
+						;
+
+case_cond				: case case_cond_expr_list
+						| default
+						;
+
+case_cond_expr_list		: expr
+						| case_cond_expr_list ',' expr
 						;
 
 statement_while_loop	: while '(' expr ')' statement_loop_cond

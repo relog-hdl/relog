@@ -75,6 +75,18 @@ else/{TS} {
 	return Parser::make_else();
 }
 
+switch/{TS} {
+	return Parser::make_switch();
+}
+
+case/{TS} {
+	return Parser::make_case();
+}
+
+default/{TS} {
+	return Parser::make_default();
+}
+
 while/{TS} {
 	return Parser::make_while();
 }
