@@ -255,6 +255,14 @@ if(...)
 		...;
 // same old dangling else behavior
 
+switch(signal) {
+	case 2'b01,
+	     2'b10:
+		... // cases do not fall through, no break required
+	default:
+		...
+}
+
 // curly braces are also legal, as you would expect:
 for(...) {
 	...
@@ -279,6 +287,12 @@ Initial and always blocks:
 	...
 }
 
+// this is an always block
+// with automatic sensitivity list generation:
+@* {
+	...
+}
+
 // and this is a simple event control operator:
 @rise signal;
 /*          ^
@@ -295,6 +309,31 @@ and test(.arg1(wire1), .arg2(wire2), .out(wire3));
 
 and test{.arg1(wire1), .arg2(wire2), .out(wire3)};
 // cpp-style, also valid
+```
+
+Generate stataments:
+
+```
+generate(i) for(...) {
+	...
+}
+
+generate(i) if(...)
+	...;
+
+generate(i) switch(...) {
+	...
+}
+```
+
+Repeat statements:
+
+```
+repeat(5) ...; // repeats a statement 5 times
+
+repeat(42) {
+	... // repeats these statements 42 times
+}
 ```
 
 Pretty much all there is to it at this point! Parameters are currently
