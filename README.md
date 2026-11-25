@@ -287,5 +287,15 @@ Initial and always blocks:
  */
 ```
 
+Module instantiation syntax:
+
+```
+and test(.arg1(wire1), .arg2(wire2), .out(wire3));
+// verilog-style, valid
+
+and test{.arg1(wire1), .arg2(wire2), .out(wire3)};
+// cpp-style, also valid
+```
+
 Pretty much all there is to it at this point! Parameters are currently
 unsupported, and so are generate statements.
