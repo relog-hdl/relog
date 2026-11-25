@@ -92,7 +92,6 @@
 %token trireg;
 
 %token <std::string> unsigned_number;
-%token <std::string> signed_number;
 %token <char> number_base;
 
 
@@ -459,8 +458,7 @@ base			: identifier
 const_base		: number
 				;
 
-number			: signed_number
-				| unsigned_number
+number			: unsigned_number
 				| number_base unsigned_number
 				| unsigned_number number_base unsigned_number
 				;

@@ -62,9 +62,6 @@ ID      [_a-zA-Z]+[_0-9a-zA-Z]*
 /* unsigned number */
 UN      [0-9_]+[0-9_]*
 
-/* signed number */
-SN      (\+|\-)[0-9_]+[0-9_]*
-
 /* string literal */
 SL      "\""([^"\\]|\\.)*\"
 
@@ -289,11 +286,6 @@ module/{TS} {
 {ID} {
 	l.flow("identifier: %s", yytext);
 	return Parser::make_identifier(yytext);
-}
-
-{SN} {
-	l.flow("snum: %s", yytext);
-	return Parser::make_signed_number(yytext);
 }
 
 {UN} {
