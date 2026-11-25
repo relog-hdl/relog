@@ -85,6 +85,8 @@
 %token do;
 %token for;
 
+%token generate;
+
 %token init;
 %token rise;
 %token fall;
@@ -316,6 +318,10 @@ statement			: statement_empty
 						{
 							l.flow("statement: statement_module_inst");
 						}
+					| statement_generate
+						{
+							l.flow("statement: statement_generate");
+						}
 		 			;
 
 statement_if_cond		: if '(' expr ')' statement_loop_cond %prec IF_STMT
@@ -373,6 +379,16 @@ at_event_edge					: rise
 
 at_event_signal					: expr
 								;
+
+statement_generate			: generate '(' generate_variable_name ')' generate_trailer
+
+generate_variable_name		: identifier
+							;
+
+generate_trailer			: statement_if_cond
+							| statement_for_loop
+							| statement_switch_cond
+							;
 
 statement_module_inst		: module_name name '{' '}' ';'
 							| module_name name '{' module_port_connection_list '}' ';'

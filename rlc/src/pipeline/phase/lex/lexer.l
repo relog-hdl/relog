@@ -99,6 +99,10 @@ for/{TS} {
 	return Parser::make_for();
 }
 
+generate/{TS} {
+	return Parser::make_generate();
+}
+
 init/{TS} {
 	return Parser::make_init();
 }
