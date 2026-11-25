@@ -326,24 +326,28 @@ statement_for_loop		: for '(' assignment_blocking ';' expr ';' assignment_blocki
 statement_at_init		: '@' init '{' statement_list_opt '}'
 						;
 
-statement_at_event		: at_event_specifier_list ';'
+statement_at_event		: at_event_specifier_list_or_auto ';'
 
-statement_at_every		: at_event_specifier_list '{' statement_list_opt '}'
+statement_at_every		: at_event_specifier_list_or_auto '{' statement_list_opt '}'
 
-at_event_specifier_list		: at_event_specifier
-							| at_event_specifier_list ',' at_event_specifier
-							;
+at_event_specifier_list_or_auto	: at_event_specifier_list
+								| '@' '*'
+								;
 
-at_event_specifier			: '@' at_event_edge at_event_signal
-							| '@' at_event_signal
-							;
+at_event_specifier_list			: at_event_specifier
+								| at_event_specifier_list ',' at_event_specifier
+								;
 
-at_event_edge				: rise
-							| fall
-							;
+at_event_specifier				: '@' at_event_edge at_event_signal
+								| '@' at_event_signal
+								;
 
-at_event_signal				: expr
-							;
+at_event_edge					: rise
+								| fall
+								;
+
+at_event_signal					: expr
+								;
 
 statement_module_inst		: module_name name '{' '}' ';'
 							| module_name name '{' module_port_connection_list '}' ';'
