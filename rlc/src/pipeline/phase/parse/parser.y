@@ -131,7 +131,7 @@
 
 %token '?' ':' '@';
 %token '[' ']' '(' ')' '{' '}';
-%token ',' ';';
+%token '.' ',' ';';
 
 %nonassoc IF_STMT
 %nonassoc else
@@ -151,6 +151,8 @@
 %right UNARYPLUS UNARYMINUS '!' '~' UNARYAMP "~&" UNARYPIPE "^|" UNARYCARET "~^"
 
 %type <std::string> net_direction
+%type <std::string> module_name
+%type <std::string> name
 //%type <std::string> type
 
 %start description_text
@@ -191,21 +193,21 @@ top_level_statement			: module_defn
 								}
 							;
 
-module_defn			: module identifier '(' ')' '{' module_body '}' ';'
+module_defn			: module name '(' ')' '{' module_body '}' ';'
 						{
 							l.flow("module_defn: (empty port list) %s", $2.c_str());
 						}
-		   			| module identifier '(' module_port_list ')' '{' module_body '}' ';'
+		   			| module name '(' module_port_list ')' '{' module_body '}' ';'
 						{
 							l.flow("module_defn: (non-empty port list) %s", $2.c_str());
 						}
 		   			;
 
-module_decl			: module identifier '(' ')' ';'
+module_decl			: module name '(' ')' ';'
 						{
 							l.flow("module_decl: (empty port list) %s", $2.c_str());
 						}
-					| module identifier '(' module_port_list ')' ';'
+					| module name '(' module_port_list ')' ';'
 						{
 							l.flow("module_decl: (non-empty port list) %s", $2.c_str());
 						}
@@ -221,15 +223,15 @@ module_port_list	: module_port
 						}
 					;
 
-module_port			: net_direction range_opt identifier
+module_port			: net_direction range_opt name
 						{
 							l.flow("module_port: (untyped) %s %s", $1.c_str(), $3.c_str());
 						}
-		   			| net_direction range_opt net identifier
+		   			| net_direction range_opt net name
 						{
 							l.flow("module_port: (net type) %s %s %s", $1.c_str(), $3.c_str(), $4.c_str());
 						}
-					| net_direction range_opt reg identifier
+					| net_direction range_opt reg name
 						{
 							l.flow("module_port: (reg type) %s %s", $1.c_str(), $4.c_str());
 						}
@@ -302,6 +304,10 @@ statement			: statement_empty
 						{
 							l.flow("statement: statement_at_every");
 						}
+					| statement_module_inst
+						{
+							l.flow("statement: statement_module_inst");
+						}
 		 			;
 
 statement_if_cond		: if '(' expr ')' statement_loop_cond %prec IF_STMT
@@ -339,6 +345,19 @@ at_event_edge				: rise
 at_event_signal				: expr
 							;
 
+statement_module_inst		: module_name name '{' '}' ';'
+							| module_name name '{' module_port_connection_list '}' ';'
+							| module_name name '(' ')' ';'
+							| module_name name '(' module_port_connection_list ')' ';'
+							;
+
+module_port_connection		: '.' name '(' expr ')'
+							;
+
+module_port_connection_list	: module_port_connection
+							| module_port_connection_list ',' module_port_connection
+							;
+
 statement_decl						: decl ';'
 									;
 
@@ -369,19 +388,19 @@ decl								: net_decl
 net_decl							: net range_opt net_decl_list
 									;
 
-net_decl_list						: identifier
-								 	| identifier "<-" expr
-								 	| net_decl_list ',' identifier
-								 	| net_decl_list ',' identifier "<-" expr
+net_decl_list						: name
+								 	| name "<-" expr
+								 	| net_decl_list ',' name
+								 	| net_decl_list ',' name "<-" expr
 								 	;
 
 reg_decl							: reg range_opt reg_decl_list
 									;
 
-reg_decl_list						: identifier
-							 		| identifier '=' expr
-							 		| reg_decl_list ',' identifier
-							 		| reg_decl_list ',' identifier '=' expr
+reg_decl_list						: name
+							 		| name '=' expr
+							 		| reg_decl_list ',' name
+							 		| reg_decl_list ',' name '=' expr
 							 		;
 
 assignment							: assignment_continous
@@ -448,19 +467,30 @@ expr			: base
 					}
 				;
 
-base			: identifier
+base			: name
 					{
 						l.flow("base: %s", $1.c_str());
 					}
-				| const_base
-				;
-
-const_base		: number
+				| number
 				;
 
 number			: unsigned_number
 				| number_base unsigned_number
 				| unsigned_number number_base unsigned_number
+				;
+
+module_name		: identifier
+					{
+						$$ = $1;
+						l.flow("module_name: %s", $1.c_str());
+					}
+				;
+
+name			: identifier
+					{
+						$$ = $1;
+						l.flow("name: %s", $1.c_str());
+					}
 				;
 
 /*

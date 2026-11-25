@@ -273,7 +273,7 @@ module/{TS} {
 	return yytext[0];
 }
 
-\,|\; {
+\.|\,|\; {
 	//l.flow("separator: %c", yytext[0]);
 	return yytext[0];
 }
