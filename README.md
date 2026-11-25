@@ -263,6 +263,9 @@ switch(signal) {
 		...
 }
 
+zswitch(signal) { ... } // casez
+xswitch(signal) { ... } // casex
+
 // curly braces are also legal, as you would expect:
 for(...) {
 	...
