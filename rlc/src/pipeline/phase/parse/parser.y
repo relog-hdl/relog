@@ -78,6 +78,8 @@
 %token if;
 %token else;
 %token switch;
+%token zswitch;
+%token xswitch;
 %token case;
 %token default;
 
@@ -333,7 +335,12 @@ statement_if_cond		: if '(' expr ')' statement_loop_cond %prec IF_STMT
 						| if '(' expr ')' statement_loop_cond else statement_loop_cond
 						;
 
-statement_switch_cond	: switch '(' expr ')' '{' switch_cond_case_list '}'
+statement_switch_cond	: switch_type_keyword '(' expr ')' '{' switch_cond_case_list '}'
+
+switch_type_keyword		: switch
+						| zswitch
+						| xswitch
+						;
 
 switch_cond_case_list	: switch_cond_case
 						| switch_cond_case_list switch_cond_case

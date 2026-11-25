@@ -79,6 +79,14 @@ switch/{TS} {
 	return Parser::make_switch();
 }
 
+zswitch/{TS} {
+	return Parser::make_zswitch();
+}
+
+xswitch/{TS} {
+	return Parser::make_xswitch();
+}
+
 case/{TS} {
 	return Parser::make_case();
 }
