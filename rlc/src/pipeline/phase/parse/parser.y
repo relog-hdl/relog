@@ -101,7 +101,8 @@
 %token trireg;
 
 %token <std::string> unsigned_number;
-%token <char> number_base;
+%token <std::string> based_number;
+%token <std::string> real_number;
 
 
 %token opGtEq ">=";
@@ -534,8 +535,8 @@ base			: name
 				;
 
 number			: unsigned_number
-				| number_base unsigned_number
-				| unsigned_number number_base unsigned_number
+				| based_number
+				| real_number
 				;
 
 module_name		: identifier

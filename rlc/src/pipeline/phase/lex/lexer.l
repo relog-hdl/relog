@@ -59,8 +59,14 @@ TS      [^_0-9a-zA-Z]
 /* identifier */
 ID      [_a-zA-Z]+[_0-9a-zA-Z]*
 
-/* unsigned number */
-UN      [0-9_]+[0-9_]*
+/* unbased number */
+UN      [0-9]+[0-9_]*
+
+/* based number */
+BN      ([1-9]+[0-9_]*)?[ \t]*'[bBoOdDhH][ \t]*[0-9a-fA-FxXzZ?_]+
+
+/* real number */
+RN      [0-9]+[0-9_]*(\.[0-9][0-9_]*)?([eE][+-]?[0-9_]+)?
 
 /* string literal */
 SL      "\""([^"\\]|\\.)*\"
@@ -306,11 +312,6 @@ module/{TS} {
 	return yytext[0];
 }
 
-\'(b|B|o|O|d|D|h|H) {
-	l.flow("number_base: %c", yytext[1]);
-	return Parser::make_number_base(yytext[1]);
-}
-
 {ID} {
 	l.flow("identifier: %s", yytext);
 	return Parser::make_identifier(yytext);
@@ -319,6 +320,16 @@ module/{TS} {
 {UN} {
 	l.flow("unum: %s", yytext);
 	return Parser::make_unsigned_number(yytext);
+}
+
+{BN} {
+	l.flow("bnum: %s", yytext);
+	return Parser::make_based_number(yytext);
+}
+
+{RN} {
+	l.flow("rnum: %s", yytext);
+	return Parser::make_real_number(yytext);
 }
 
 {WS}
