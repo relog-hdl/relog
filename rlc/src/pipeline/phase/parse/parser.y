@@ -86,6 +86,7 @@
 %token for;
 
 %token generate;
+%token repeat;
 
 %token init;
 %token rise;
@@ -318,6 +319,10 @@ statement			: statement_empty
 						{
 							l.flow("statement: statement_module_inst");
 						}
+					| statement_repeat
+						{
+							l.flow("statement: statement_repeat");
+						}
 					| statement_generate
 						{
 							l.flow("statement: statement_generate");
@@ -379,6 +384,8 @@ at_event_edge					: rise
 
 at_event_signal					: expr
 								;
+
+statement_repeat			: repeat '(' expr ')' statement_loop_cond
 
 statement_generate			: generate '(' generate_variable_name ')' generate_trailer
 

@@ -103,6 +103,10 @@ generate/{TS} {
 	return Parser::make_generate();
 }
 
+repeat/{TS} {
+	return Parser::make_repeat();
+}
+
 init/{TS} {
 	return Parser::make_init();
 }
