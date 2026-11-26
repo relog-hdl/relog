@@ -103,6 +103,7 @@
 %token <std::string> unsigned_number;
 %token <std::string> based_number;
 %token <std::string> real_number;
+%token <std::string> string;
 
 
 %token opGtEq ">=";
@@ -532,6 +533,7 @@ base			: name
 						l.flow("base: %s", $1.c_str());
 					}
 				| number
+				| string
 				;
 
 number			: unsigned_number

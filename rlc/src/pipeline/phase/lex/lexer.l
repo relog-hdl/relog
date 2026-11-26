@@ -69,7 +69,7 @@ BN      ([1-9]+[0-9_]*)?[ \t]*'[bBoOdDhH][ \t]*[0-9a-fA-FxXzZ?_]+
 RN      [0-9]+[0-9_]*(\.[0-9][0-9_]*)?([eE][+-]?[0-9_]+)?
 
 /* string literal */
-SL      "\""([^"\\]|\\.)*\"
+SL      \"([^"\\]|\\.)*\"
 
 %%
 
@@ -330,6 +330,13 @@ module/{TS} {
 {RN} {
 	l.flow("rnum: %s", yytext);
 	return Parser::make_real_number(yytext);
+}
+
+{SL} {
+	l.flow("stringlit: %s", yytext);
+	std::string str = yytext;
+	std::string trimmed_str = str.substr(1, str.size()-2);
+	return Parser::make_string(trimmed_str);
 }
 
 {WS}
