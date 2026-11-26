@@ -463,30 +463,50 @@ statement_module_inst		: module_name module_inst_parameter_wagon_opt name '{' mo
 							| module_name module_inst_parameter_wagon_opt name '(' module_inst_connection_list_opt ')' ';'
 							;
 
-module_inst_parameter_wagon_opt	: module_inst_parameter_wagon
-								| %empty
-								;
+module_inst_parameter_wagon_opt			: module_inst_parameter_wagon
+										| %empty
+										;
 
-module_inst_parameter_wagon		: '#' '(' module_inst_parameter_list ')'
-								;
+module_inst_parameter_wagon				: '#' '(' module_inst_parameter_list ')'
+										;
 
-module_inst_parameter_list		: module_inst_parameter
-								| module_inst_parameter_list ',' module_inst_parameter
-								;
+module_inst_parameter_list				: module_inst_parameter_named_list
+										| module_inst_parameter_positional_list
+										;
 
-module_inst_parameter			: '.' name '(' expr ')'
-								;
+module_inst_parameter_positional_list	: module_inst_parameter_positional
+										| module_inst_parameter_positional_list ',' module_inst_parameter_positional
+										;
 
-module_inst_connection_list_opt	: module_inst_connection_list
-								| %empty
-								;
+module_inst_parameter_positional		: expr
+										;
 
-module_inst_connection_list		: module_inst_connection
-								| module_inst_connection_list ',' module_inst_connection
-								;
+module_inst_parameter_named_list		: module_inst_parameter_named
+										| module_inst_parameter_named_list ',' module_inst_parameter_named
+										;
 
-module_inst_connection			: '.' name '(' expr ')'
-								;
+module_inst_parameter_named				: '.' name '(' expr ')'
+										;
+
+module_inst_connection_list_opt			: module_inst_connection_list
+										| %empty
+										;
+
+module_inst_connection_list				: module_inst_connection_named_list
+										| module_inst_connection_positional_list
+										;
+
+module_inst_connection_positional_list	: module_inst_connection_positional
+										| module_inst_connection_positional_list ',' module_inst_connection_positional
+
+module_inst_connection_positional		: expr
+										;
+
+module_inst_connection_named_list		: module_inst_connection_named
+										| module_inst_connection_named_list ',' module_inst_connection_named
+
+module_inst_connection_named			: '.' name '(' expr ')'
+										;
 
 statement_decl						: decl ';'
 									;
