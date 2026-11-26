@@ -207,6 +207,10 @@ Preprocessor directives:
 // not supported yet
 ```
 
+`` ` `` is used instead of the usual `#` of the C preprocessor because `#` is
+reserved for the delay control operator, which you can use wherever you would
+expect to be able to use it.
+
 Module declarations:
 
 ```
