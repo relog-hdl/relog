@@ -100,6 +100,7 @@
 %token reg;
 %token trireg;
 
+%token <std::string> edge_descriptor;
 %token <std::string> unsigned_number;
 %token <std::string> based_number;
 %token <std::string> real_number;
@@ -404,6 +405,7 @@ at_event_specifier				: '@' at_event_edge at_event_signal
 
 at_event_edge					: rise
 								| fall
+								| edge edge_descriptor
 								;
 
 at_event_signal					: expr

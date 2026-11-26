@@ -71,6 +71,8 @@ RN      [0-9]+[0-9_]*(\.[0-9][0-9_]*)?([eE][+-]?[0-9_]+)?
 /* string literal */
 SL      \"([^"\\]|\\.)*\"
 
+%x ctxEdgeDescriptor
+
 %%
 
 if/{TS} {
@@ -134,6 +136,7 @@ fall/{TS} {
 }
 
 edge/{TS} {
+	BEGINCONTEXT(ctxEdgeDescriptor);
 	return Parser::make_edge();
 }
 
@@ -350,6 +353,22 @@ module/{TS} {
 <<EOF>> {
 	l.flow("eof");
 	yyterminate();
+}
+
+<ctxEdgeDescriptor>{WS}
+
+<ctxEdgeDescriptor>{NL}
+
+<ctxEdgeDescriptor>[01x]{2} {
+	ENDCONTEXT();
+	l.flow("edge descriptor: %s", yytext);
+	return Parser::make_edge_descriptor(yytext);
+}
+
+<ctxEdgeDescriptor>. {
+	ENDCONTEXT();
+	std::string str = "unexpected string, expected edge descriptor";
+	LexerError(str.c_str());
 }
 
 %%
