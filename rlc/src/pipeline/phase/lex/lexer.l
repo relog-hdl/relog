@@ -300,7 +300,7 @@ module/{TS} {
 	return yytext[0];
 }
 
-\?|\:|\@ {
+\?|\:|\@|\# {
 	//l.flow("control flow: %c", yytext[0]);
 	return yytext[0];
 }

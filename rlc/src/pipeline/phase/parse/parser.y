@@ -141,7 +141,7 @@
 %token '^' '&' '|' '~' '!' '+' '-' '*' '/' '%' '=';
 
 
-%token '?' ':' '@';
+%token '?' ':' '@' '#';
 %token '[' ']' '(' ')' '{' '}';
 %token '.' ',' ';';
 
@@ -279,6 +279,10 @@ statement_loop_cond	: statement
 statement			: statement_empty
 						{
 							l.flow("statement: statement_empty");
+						}
+					| statement_delay_control
+						{
+							l.flow("statement: statement_delay_control");
 						}
 					| statement_decl
 						{
@@ -466,6 +470,9 @@ statement_assignment_nonblocking	: assignment_nonblocking ';'
 									;
 */
 
+statement_delay_control				: delay_control statement
+									;
+
 statement_empty						: ';'
 									;
 
@@ -476,20 +483,28 @@ decl								: net_decl
 net_decl							: net range_opt net_decl_list
 									;
 
-net_decl_list						: name
-								 	| name "<-" expr
-								 	| net_decl_list ',' name
-								 	| net_decl_list ',' name "<-" expr
+net_decl_list						: decl_name
+								 	| decl_name "<-" expr
+								 	| decl_name "<-" expr delay_control
+								 	| net_decl_list ',' decl_name
+								 	| net_decl_list ',' decl_name "<-" expr
+								 	| net_decl_list ',' decl_name "<-" expr delay_control
 								 	;
 
 reg_decl							: reg range_opt reg_decl_list
 									;
 
-reg_decl_list						: name
-							 		| name '=' expr
-							 		| reg_decl_list ',' name
-							 		| reg_decl_list ',' name '=' expr
+reg_decl_list						: decl_name
+							 		| decl_name '=' expr
+							 		| decl_name '=' expr delay_control
+							 		| reg_decl_list ',' decl_name
+							 		| reg_decl_list ',' decl_name '=' expr
+							 		| reg_decl_list ',' decl_name '=' expr delay_control
 							 		;
+
+decl_name							: name
+									| name delay_control
+									;
 
 assignment							: assignment_continous
 									| assignment_blocking
@@ -503,12 +518,15 @@ assignment_transfer					: assignment_blocking
 */
 
 assignment_continous				: name "<-" expr
+									| name "<-" expr delay_control
 									;
 
 assignment_blocking					: name '=' expr
+									| name '=' expr delay_control
 									;
 
 assignment_nonblocking				: name "<=" expr
+									| name "<=" expr delay_control
 									| name "<=" expr at_event_specifier_list_or_auto
 									| name "<=" expr repeat_head at_event_specifier_list_or_auto
 									;
@@ -563,6 +581,10 @@ base			: name
 					}
 				| number
 				| string
+				;
+
+delay_control	: '#' number
+				| '#' identifier
 				;
 
 number			: unsigned_number
