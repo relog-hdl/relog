@@ -226,6 +226,24 @@ module foobar(input a, output b) {
 }
 ```
 
+Parameters are also supported:
+
+```
+module bitwise_and #(WIDTH = 8) (
+	input [WIDTH-1:0] a,
+	input [WIDTH-1:0] b,
+	output [WIDTH-1:0] out
+) {
+	out <- a & b;
+}
+
+module top() {
+	reg [15:0] a = 3, b = 7, c;
+
+	bitwise_and #(16) ander(a, b, c);
+}
+```
+
 Net/reg declarations:
 
 ```
