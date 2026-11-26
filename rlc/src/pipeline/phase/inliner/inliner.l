@@ -57,7 +57,7 @@ SL      \"([^"\\]|\\.)*\"
 	yyout << yytext;
 }
 
-^{WS}*\# {
+^{WS}*` {
 	l.flow("begin preprocessor directive");
 	BEGINCONTEXT(ctxPreprocessor);
 }
