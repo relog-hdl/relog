@@ -308,10 +308,6 @@ statement			: statement_empty
 						{
 							l.flow("statement: statement_for_loop");
 						}
-					| statement_at_init
-						{
-							l.flow("statement: statement_at_init");
-						}
 					| statement_at_event
 						{
 							l.flow("statement: statement_at_event");
@@ -381,11 +377,20 @@ statement_for_loop		: for_head statement_loop_cond
 for_head				: for '(' assignment_blocking ';' expr ';' assignment_blocking ')'
 						;
 
-statement_at_init		: at_init_head '{' statement_list_opt '}'
-						;
-
-at_init_head			: '@' init
-						;
+/* There is no 'at_event_specifier_list_or_auto statement' construct here.
+ * This is an intentional choice to avoid ambiguity:
+ *
+ * @rise clk
+ *     do_stuff;
+ *
+ * looks too much like
+ *
+ * @rise_clk {
+ *     do_stuff;
+ * }
+ *
+ * while not being at all the same thing.
+ */
 
 statement_at_event		: at_event_specifier_list_or_auto ';'
 
@@ -401,6 +406,7 @@ at_event_specifier_list			: at_event_specifier
 
 at_event_specifier				: '@' at_event_edge at_event_signal
 								| '@' at_event_signal
+								| '@' init
 								;
 
 at_event_edge					: rise
