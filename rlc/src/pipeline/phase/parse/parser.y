@@ -333,11 +333,17 @@ statement			: statement_empty
 						}
 		 			;
 
-statement_if_cond		: if '(' expr ')' statement_loop_cond %prec IF_STMT
-						| if '(' expr ')' statement_loop_cond else statement_loop_cond
+statement_if_cond		: if_head statement_loop_cond %prec IF_STMT
+						| if_head statement_loop_cond else statement_loop_cond
 						;
 
-statement_switch_cond	: switch_type_keyword '(' expr ')' '{' switch_cond_case_list '}'
+if_head					: if '(' expr ')'
+						;
+
+statement_switch_cond	: switch_head '{' switch_cond_case_list '}'
+
+switch_head				: switch_type_keyword '(' expr ')'
+						;
 
 switch_type_keyword		: switch
 						| zswitch
@@ -359,16 +365,25 @@ case_cond_expr_list		: expr
 						| case_cond_expr_list ',' expr
 						;
 
-statement_while_loop	: while '(' expr ')' statement_loop_cond
+statement_while_loop	: while_head statement_loop_cond
 						;
 
-statement_do_while_loop	: do statement_loop_cond while '(' expr ')' ';'
+statement_do_while_loop	: do statement_loop_cond while_head ';'
 						;
 
-statement_for_loop		: for '(' assignment_blocking ';' expr ';' assignment_blocking ')' statement_loop_cond
+while_head				: while '(' expr ')'
 						;
 
-statement_at_init		: '@' init '{' statement_list_opt '}'
+statement_for_loop		: for_head statement_loop_cond
+						;
+
+for_head				: for '(' assignment_blocking ';' expr ';' assignment_blocking ')'
+						;
+
+statement_at_init		: at_init_head '{' statement_list_opt '}'
+						;
+
+at_init_head			: '@' init
 						;
 
 statement_at_event		: at_event_specifier_list_or_auto ';'
@@ -394,9 +409,13 @@ at_event_edge					: rise
 at_event_signal					: expr
 								;
 
-statement_repeat			: repeat '(' expr ')' statement_loop_cond
+statement_repeat			: repeat_head statement_loop_cond
 
-statement_generate			: generate '(' generate_variable_name ')' generate_trailer
+repeat_head					: repeat '(' expr ')'
+
+statement_generate			: generate_head generate_trailer
+
+generate_head				: generate '(' generate_variable_name ')'
 
 generate_variable_name		: identifier
 							;
