@@ -205,49 +205,71 @@ top_level_statement			: module_defn
 								}
 							;
 
-module_defn			: module name '(' ')' '{' module_body '}' ';'
-						{
-							l.flow("module_defn: (empty port list) %s", $2.c_str());
-						}
-		   			| module name '(' module_port_list ')' '{' module_body '}' ';'
-						{
-							l.flow("module_defn: (non-empty port list) %s", $2.c_str());
-						}
+module_defn			: module_head module_parameter_decl_wagon_opt '(' module_connection_decl_list_opt ')' '{' module_body '}' ';'
 		   			;
 
-module_decl			: module name '(' ')' ';'
+module_decl			: module_head module_parameter_decl_wagon_opt '(' module_connection_decl_list_opt ')' ';'
+					;
+
+module_head			: module name
 						{
-							l.flow("module_decl: (empty port list) %s", $2.c_str());
-						}
-					| module name '(' module_port_list ')' ';'
-						{
-							l.flow("module_decl: (non-empty port list) %s", $2.c_str());
+							l.flow("module_head:  %s", $2.c_str());
 						}
 					;
 
-module_port_list	: module_port
-						{
-							l.flow("module_port_list: (start)");
-						}
-					| module_port_list ',' module_port
-						{
-							l.flow("module_port_list: (continuation)");
-						}
-					;
+module_parameter_decl_wagon_opt	: module_parameter_decl_wagon
+								| %empty
+								;
 
-module_port			: net_direction range_opt name
-						{
-							l.flow("module_port: (untyped) %s %s", $1.c_str(), $3.c_str());
-						}
-		   			| net_direction range_opt net name
-						{
-							l.flow("module_port: (net type) %s %s %s", $1.c_str(), $3.c_str(), $4.c_str());
-						}
-					| net_direction range_opt reg name
-						{
-							l.flow("module_port: (reg type) %s %s", $1.c_str(), $4.c_str());
-						}
-		   			;
+module_parameter_decl_wagon		: '#' '(' module_parameter_decl_list ')'
+									{
+										l.flow("module_parameter_decl_wagon");
+									}
+								;
+
+module_parameter_decl_list		: module_parameter_decl
+									{
+										l.flow("module_parameter_decl_list: (start)");
+									}
+								| module_parameter_decl_list ',' module_parameter_decl
+									{
+										l.flow("module_parameter_decl_list: (continuation)");
+									}
+								;
+
+module_parameter_decl			: assignment_blocking
+									{
+										l.flow("module_parameter_decl: assignment_blocking");
+									}
+								;
+
+module_connection_decl_list_opt	: module_connection_decl_list
+								| %empty
+								;
+
+module_connection_decl_list		: module_connection_decl
+									{
+										l.flow("module_connection_decl_list: (start)");
+									}
+								| module_connection_decl_list ',' module_connection_decl
+									{
+										l.flow("module_connection_decl_list: (continuation)");
+									}
+								;
+
+module_connection_decl			: net_direction range_opt name
+									{
+										l.flow("module_connection_decl: (untyped) %s %s", $1.c_str(), $3.c_str());
+									}
+								| net_direction range_opt net name
+									{
+										l.flow("module_connection_decl: (net type) %s %s %s", $1.c_str(), $3.c_str(), $4.c_str());
+									}
+								| net_direction range_opt reg name
+									{
+										l.flow("module_connection_decl: (reg type) %s %s", $1.c_str(), $4.c_str());
+									}
+								;
 
 module_body			: statement_list_opt
 		   			;
