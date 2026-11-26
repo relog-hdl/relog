@@ -48,6 +48,8 @@ SL      \"([^"\\]|\\.)*\"
 
 %x ctxPreprocessor
 
+%x ctxPreprocessorUnrecognized
+
 %x ctxInclude
 
 %%
@@ -62,13 +64,9 @@ SL      \"([^"\\]|\\.)*\"
 	BEGINCONTEXT(ctxPreprocessor);
 }
 
-<ctxPreprocessor>{NL} {
-	l.flow("end preprocessor directive");
-	ENDCONTEXT();
-}
-
-<ctxPreprocessor>include/{TS} {
-	BEGINCONTEXT(ctxInclude);
+<<EOF>> {
+	l.flow("eof");
+	yyterminate();
 }
 
 <ctxInclude>{WS}
@@ -85,9 +83,27 @@ SL      \"([^"\\]|\\.)*\"
 	handleInclude(yytext);
 }
 
-<<EOF>> {
-	l.flow("eof");
-	yyterminate();
+<ctxPreprocessor>{NL} {
+	l.flow("end preprocessor directive");
+	ENDCONTEXT();
+}
+
+<ctxPreprocessor>include/{TS} {
+	BEGINCONTEXT(ctxInclude);
+}
+
+<ctxPreprocessor>[^ \t\r\n]+/{TS} {
+	l.warning("unrecognized preprocessor directive: %s", yytext);
+	BEGINCONTEXT(ctxPreprocessorUnrecognized);
+}
+
+<ctxPreprocessorUnrecognized>{NL} {
+	ENDCONTEXT();
+	ENDCONTEXT(); // also pop ctxPreprocessor context
+}
+
+<ctxPreprocessorUnrecognized>[^\r\n]* {
+	l.warning("ignoring unrecognized preprocessor directive trailer: %s", yytext);
 }
 
 %%
