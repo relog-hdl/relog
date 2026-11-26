@@ -180,20 +180,20 @@ whatsoever shadowed my logger, now shut up)
 Comments:
 
 ```
-// Single-line
+// single-line
 
 /*
- * Multi-line
+ * multi-line
  */
 
-// Code-disabling:
+// code-disabling:
 /---
 module test(input foo, output bar) {
 /---
 	bar <- foo;
 ---/
 }
----/ // They can nest without an error!
+---/ // they can nest without an error!
 ```
 
 Preprocessor directives:
@@ -201,10 +201,10 @@ Preprocessor directives:
 ```
 `include "file.rl"
 `include <file.rl>
-// Currently the same thing
+// currently the same thing
 
 `define
-// Not supported yet, will kill the preprocessor
+// not supported yet
 ```
 
 Module declarations:
@@ -300,7 +300,7 @@ Initial and always blocks:
 @rise signal;
 /*          ^
  *          |
- *  The difference is here
+ *  the difference is here
  */
 ```
 
