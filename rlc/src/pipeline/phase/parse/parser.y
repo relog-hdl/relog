@@ -501,6 +501,8 @@ assignment_blocking					: identifier '=' expr
 									;
 
 assignment_nonblocking				: identifier "<=" expr
+									| identifier "<=" expr at_event_specifier_list_or_auto
+									| identifier "<=" expr repeat_head at_event_specifier_list_or_auto
 									;
 
 expr			: base
