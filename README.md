@@ -340,4 +340,4 @@ repeat(42) {
 ```
 
 Pretty much all there is to it at this point! Parameters are currently
-unsupported, and so are generate statements.
+unsupported.
