@@ -205,7 +205,7 @@ top_level_statement			: module_defn
 								}
 							;
 
-module_defn			: module_head module_parameter_decl_wagon_opt '(' module_connection_decl_list_opt ')' '{' module_body '}' ';'
+module_defn			: module_head module_parameter_decl_wagon_opt '(' module_connection_decl_list_opt ')' '{' module_body '}'
 		   			;
 
 module_decl			: module_head module_parameter_decl_wagon_opt '(' module_connection_decl_list_opt ')' ';'
