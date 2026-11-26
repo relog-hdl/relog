@@ -359,16 +359,15 @@ module/{TS} {
 
 <ctxEdgeDescriptor>{NL}
 
-<ctxEdgeDescriptor>[01x]{2} {
+<ctxEdgeDescriptor>[01x]{2}/{TS} {
 	ENDCONTEXT();
 	l.flow("edge descriptor: %s", yytext);
 	return Parser::make_edge_descriptor(yytext);
 }
 
-<ctxEdgeDescriptor>. {
+<ctxEdgeDescriptor>[^ \t\r\n]+ {
 	ENDCONTEXT();
-	std::string str = "unexpected string, expected edge descriptor";
-	LexerError(str.c_str());
+	l.warning("unexpected string, expected edge descriptor: %s", yytext);
 }
 
 %%
