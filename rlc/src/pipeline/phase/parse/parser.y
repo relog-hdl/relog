@@ -459,18 +459,34 @@ generate_trailer			: statement_if_cond
 							| statement_switch_cond
 							;
 
-statement_module_inst		: module_name name '{' '}' ';'
-							| module_name name '{' module_port_connection_list '}' ';'
-							| module_name name '(' ')' ';'
-							| module_name name '(' module_port_connection_list ')' ';'
+statement_module_inst		: module_name module_inst_parameter_wagon_opt name '{' module_inst_connection_list_opt '}' ';'
+							| module_name module_inst_parameter_wagon_opt name '(' module_inst_connection_list_opt ')' ';'
 							;
 
-module_port_connection		: '.' name '(' expr ')'
-							;
+module_inst_parameter_wagon_opt	: module_inst_parameter_wagon
+								| %empty
+								;
 
-module_port_connection_list	: module_port_connection
-							| module_port_connection_list ',' module_port_connection
-							;
+module_inst_parameter_wagon		: '#' '(' module_inst_parameter_list ')'
+								;
+
+module_inst_parameter_list		: module_inst_parameter
+								| module_inst_parameter_list ',' module_inst_parameter
+								;
+
+module_inst_parameter			: '.' name '(' expr ')'
+								;
+
+module_inst_connection_list_opt	: module_inst_connection_list
+								| %empty
+								;
+
+module_inst_connection_list		: module_inst_connection
+								| module_inst_connection_list ',' module_inst_connection
+								;
+
+module_inst_connection			: '.' name '(' expr ')'
+								;
 
 statement_decl						: decl ';'
 									;
