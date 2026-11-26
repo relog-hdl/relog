@@ -44,13 +44,18 @@ NL      (\r\n|\r|\n)
 TS      [^_0-9a-zA-Z]
 
 /* string literal */
-SL      "\""([^"\\]|\\.)*\"
+SL      \"([^"\\]|\\.)*\"
 
 %x ctxPreprocessor
 
 %x ctxInclude
 
 %%
+
+{SL} {
+	// ignore preprocessor directives inside of string literals
+	yyout << yytext;
+}
 
 ^{WS}*\# {
 	l.flow("begin preprocessor directive");

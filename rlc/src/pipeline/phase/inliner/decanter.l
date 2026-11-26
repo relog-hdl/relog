@@ -44,9 +44,8 @@
 /* newline */
 NL      (\r\n|\r|\n)
 
-/* string literal, need to recognize because comments don't count
-                   inside of string literals                      */
-SL      "\""([^"\\]|\\.)*\"
+/* string literal */
+SL      \"([^"\\]|\\.)*\"
 
 %x ctxMultilineComment
 
@@ -55,6 +54,7 @@ SL      "\""([^"\\]|\\.)*\"
 %%
 
 {SL} {
+	// ignore comment start/end tokens inside of string literals
 	yyout << yytext;
 }
 
