@@ -199,11 +199,11 @@ module test(input foo, output bar) {
 Preprocessor directives:
 
 ```
-#include "file.rl"
-#include <file.rl>
+`include "file.rl"
+`include <file.rl>
 // Currently the same thing
 
-#define
+`define
 // Not supported yet, will kill the preprocessor
 ```
 
