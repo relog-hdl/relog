@@ -343,5 +343,4 @@ repeat(42) {
 }
 ```
 
-Pretty much all there is to it at this point! Parameters are currently
-unsupported.
+Pretty much all there is to it at this point!
