@@ -66,7 +66,7 @@ Inliner::handleInclude(char* inc_str)
 }
 
 void
-Inliner::include(bool external, std::string path)
+Inliner::include(bool external, std::string& path)
 {
 	l.flow("including: %d %s", external, path.c_str());
 

@@ -82,7 +82,7 @@ class Inliner final : public yyFlexLexer
 
 		void handleInclude(char* inc_str);
 
-		void include(bool external, std::string path);
+		void include(bool external, std::string& path);
 };
 
 } // namespace relog::pipeline::inliner
