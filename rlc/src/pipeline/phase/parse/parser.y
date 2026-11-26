@@ -502,15 +502,15 @@ assignment_transfer					: assignment_blocking
 									;
 */
 
-assignment_continous				: identifier "<-" expr
+assignment_continous				: name "<-" expr
 									;
 
-assignment_blocking					: identifier '=' expr
+assignment_blocking					: name '=' expr
 									;
 
-assignment_nonblocking				: identifier "<=" expr
-									| identifier "<=" expr at_event_specifier_list_or_auto
-									| identifier "<=" expr repeat_head at_event_specifier_list_or_auto
+assignment_nonblocking				: name "<=" expr
+									| name "<=" expr at_event_specifier_list_or_auto
+									| name "<=" expr repeat_head at_event_specifier_list_or_auto
 									;
 
 expr			: base
