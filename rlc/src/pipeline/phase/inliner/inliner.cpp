@@ -192,6 +192,33 @@ Inliner::ExpandMacroArgPrintVisitor::visit(ExpandMacroArgCall& arg)
 	l.flow("end call arg: %s", arg.value.c_str());
 }
 
+Inliner::ExpandMacroArgExpandVisitor::ExpandMacroArgExpandVisitor(Inliner& i_, relog::service::logging::Loggerf& l_) : i(i_), l(l_) {}
+
+void
+Inliner::ExpandMacroArgExpandVisitor::visit(ExpandMacroArgPlain& arg)
+{
+	arg.replacement = arg.value;
+
+	std::unordered_map<std::string, int> expanded;
+	while(true)
+	{
+		if(!i.expand_object_like_once(arg.replacement, expanded))
+			break;
+	}
+}
+
+void
+Inliner::ExpandMacroArgExpandVisitor::visit(ExpandMacroArgCall& arg)
+{
+	// does not need to visit children
+	// because it will be done by Inliner::expand
+
+	ExpandMacroArgCall* p = &arg;
+	auto ptr = std::unique_ptr<ExpandMacroArgCall>{p};
+	i.expand(arg.value, ptr);
+	ptr.release();
+}
+
 void
 Inliner::ExpandMacroStatus::push_arg_call(const char* val)
 {
@@ -256,13 +283,106 @@ Inliner::expand(std::string& name)
 std::string
 Inliner::expand(std::string& name, std::unique_ptr<ExpandMacroArgCall>& arg_root)
 {
+	std::unique_ptr<FunctionLikeMacro>& macro = function_like_macros[name];
+
 	l.flow("expanding function-like macro: %s", name.c_str());
-	ExpandMacroArgPrintVisitor v{l};
-	arg_root->admit(v);
+	ExpandMacroArgPrintVisitor vp{l};
+	arg_root->admit(vp);
 
-	// TODO(Gleb Salmanov): expand
+	int required_arg_count = macro->arg_names.size();
+	int arg_count = arg_root->args.size();
 
-	return "";
+	if(arg_count != required_arg_count)
+	{
+		l.error("error expanding macro '%s': requires %d arguments, provided %d", name.c_str(), required_arg_count, arg_count);
+		return "";
+	}
+
+	// TODO(Gleb Salmanov): Stringification and prescan
+
+	ExpandMacroArgExpandVisitor ve{*this, l};
+	for(auto&& arg : arg_root->args)
+		arg->admit(ve);
+
+	std::string& repl = arg_root->replacement;
+	repl = macro->repl;
+
+	for(int arg = 0; arg < arg_count; arg++)
+	{
+		std::string& arg_name = macro->arg_names[arg];
+		std::string& arg_replacement = arg_root->args[arg]->replacement;
+
+		replace_all_id_occurences(repl, arg_name, arg_replacement);
+	}
+
+	return repl;
+}
+
+bool
+Inliner::expand_object_like_once(std::string& str, std::unordered_map<std::string, int>& expanded)
+{
+	for(auto& name_ref : std::views::keys(object_like_macros))
+	{
+		std::string& name = const_cast<std::string&>(name_ref);
+
+		if(replace_all_id_occurences(str, name, object_like_macros[name]))
+		{
+			if(expanded.count(name) > 0)
+				expanded[name] += 1;
+			else
+				expanded[name] = 1;
+
+			if(expanded[name] >= RELOG_INLINER_WARN_BUFFER_STACK_SIZE)
+			{
+				l.warning("max stack size approaching: %d", RELOG_INLINER_MAX_BUFFER_STACK_SIZE - expanded[name]);
+				if(expanded[name] >= RELOG_INLINER_MAX_BUFFER_STACK_SIZE)
+					LexerError("max stack size reached");
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+inline bool
+Inliner::replace_all_id_occurences(std::string& in, std::string& of, std::string& with)
+{
+	bool replaced = false;
+
+	char validator;
+	bool valid;
+
+	size_t pos = 0;
+	while((pos = in.find(of, pos)) != std::string::npos)
+	{
+		valid = true;
+		validator = in[pos + of.length()];
+
+		if(validator > 'a' && validator < 'z')
+			valid = false;
+		else if(validator > 'A' && validator < 'Z')
+			valid = false;
+		else if(validator > '0' && validator < '9')
+			valid = false;
+		else if(validator == '_')
+			valid = false;
+
+		if(valid)
+		{
+			in.replace(pos, of.length(), with);
+			pos += with.length();
+			replaced = true;
+		}
+		else
+		{
+			pos += of.length();
+			continue;
+		}
+	}
+
+	return replaced;
 }
 
 void

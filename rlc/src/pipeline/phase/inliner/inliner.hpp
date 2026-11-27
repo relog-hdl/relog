@@ -109,16 +109,13 @@ class Inliner final : public yyFlexLexer
 		void include(bool external, std::string& path);
 
 	protected:
-		class FunctionLikeMacro final
+		struct FunctionLikeMacro final
 		{
-			protected:
 				std::vector<std::string> arg_names;
 				std::string repl;
 
 			public:
 				FunctionLikeMacro(std::vector<std::string> arg_names_, std::string repl_);
-
-				std::string expand(std::vector<std::string> args);
 		};
 
 		std::unordered_map<std::string, std::string> object_like_macros;
@@ -201,6 +198,19 @@ class Inliner final : public yyFlexLexer
 				void visit(ExpandMacroArgCall& arg);
 		};
 
+		struct ExpandMacroArgExpandVisitor final : public IExpandMacroArgVisitor
+		{
+				relog::pipeline::inliner::Inliner& i;
+				relog::service::logging::Loggerf& l;
+
+			public:
+				ExpandMacroArgExpandVisitor(relog::pipeline::inliner::Inliner& i_, relog::service::logging::Loggerf& l_);
+
+				void visit(ExpandMacroArgPlain& arg);
+
+				void visit(ExpandMacroArgCall& arg);
+		};
+
 	protected:
 		struct ExpandMacroStatus final
 		{
@@ -222,9 +232,14 @@ class Inliner final : public yyFlexLexer
 
 		void handleExpandFunctionLike();
 
+	public:
 		std::string expand(std::string& name);
 
 		std::string expand(std::string& name, std::unique_ptr<ExpandMacroArgCall>& arg_root);
+
+		bool expand_object_like_once(std::string& str, std::unordered_map<std::string, int>& expanded);
+
+		inline bool replace_all_id_occurences(std::string& in, std::string& of, std::string& with);
 
 	protected:
 		std::stack<std::unique_ptr<std::istringstream>> streams;
