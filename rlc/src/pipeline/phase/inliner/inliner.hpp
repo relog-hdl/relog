@@ -111,14 +111,15 @@ class Inliner final : public yyFlexLexer
 	protected:
 		struct ConstructMacroStatus
 		{
-				std::string name, args, repl;
+				std::string name, repl;
+				std::vector<std::string> args;
 		};
 
 		std::unique_ptr<ConstructMacroStatus> construct_macro = nullptr;
 
 		struct ExpandMacroStatus
 		{
-				std::string name, repl;
+				std::string name;
 				std::string current_arg;
 				std::vector<std::string> args;
 		};
@@ -140,17 +141,25 @@ class Inliner final : public yyFlexLexer
 		std::unordered_map<std::string, std::string> object_like_macros;
 		std::unordered_map<std::string, std::unique_ptr<FunctionLikeMacro>> function_like_macros;
 
+		void checkMacroExists(std::string& name);
+
+		bool macroExists(std::string& name);
+
 		void handleDefineObjectLike();
 
 		void handleDefineFunctionLike();
-
-		void checkMacroExists();
 
 		void define(std::string& name, std::string& replacement);
 
 		void define(std::string& name, std::vector<std::string>& arguments, std::string& replacement);
 
+		void handleExpandObjectLike();
+
 		void handleExpandFunctionLike();
+
+		std::string expand(std::string& name);
+
+		std::string expand(std::string& name, std::vector<std::string>& args);
 
 	protected:
 		std::stack<std::unique_ptr<std::istringstream>> streams;

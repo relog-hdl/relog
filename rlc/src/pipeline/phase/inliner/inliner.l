@@ -49,6 +49,12 @@ ID      [_a-zA-Z]+[_0-9a-zA-Z]*
 /* string literal */
 SL      \"([^"\\]|\\.)*\"
 
+%x ctxMacroArgumentsPre
+
+%x ctxMacroArguments
+
+%x ctxMacroArgumentsBracedInside
+
 %x ctxPreprocessor
 
 %x ctxPreprocessorUnrecognized
@@ -61,13 +67,9 @@ SL      \"([^"\\]|\\.)*\"
 
 %x ctxDefineFunctionLikeMacro
 
+%x ctxDefineFunctionLikeMacroArgs
+
 %x ctxDefineFunctionLikeMacroReplacement
-
-%x ctxMacroArgumentsPre
-
-%x ctxMacroArguments
-
-%x ctxMacroArgumentsBracedInside
 
 %%
 
@@ -81,18 +83,19 @@ SL      \"([^"\\]|\\.)*\"
 	BEGINCONTEXT(ctxPreprocessor);
 }
 
-{ID} {
+{ID}/{TS} {
 	std::string id{yytext};
 	if(object_like_macros.count(id) > 0)
 	{
-		push_string(object_like_macros[id]);
-		l.flow("replacing object-like macro: %s -> '%s'", id.c_str(), object_like_macros[id].c_str());
+		expand_macro = std::make_unique<ExpandMacroStatus>();
+		expand_macro->name = id;
+		handleExpandObjectLike();
 	}
 	else if(function_like_macros.count(id) > 0)
 	{
-		l.flow("collecting arguments for function-like macro");
 		expand_macro = std::make_unique<ExpandMacroStatus>();
 		expand_macro->name = id;
+		l.flow("collecting arguments for function-like macro");
 		BEGINCONTEXT(ctxMacroArgumentsPre);
 	}
 	else
@@ -132,7 +135,6 @@ SL      \"([^"\\]|\\.)*\"
 	expand_macro->current_arg = std::string{};
 	ENDCONTEXT();
 	ENDCONTEXT(); // also pop ctxMacroArgumentsPre context
-	l.flow("handling function-like macro: %s", expand_macro->name.c_str());
 	handleExpandFunctionLike();
 }
 
@@ -173,7 +175,6 @@ SL      \"([^"\\]|\\.)*\"
 	ENDCONTEXT();
 	ENDCONTEXT(); // also pop ctxDefine context
 	ENDCONTEXT(); // also pop ctxPreporcessor context
-	l.flow("defining object-like macro: %s -> '%s'", construct_macro->name.c_str(), construct_macro->repl.c_str());
 	handleDefineObjectLike();
 }
 
@@ -181,9 +182,29 @@ SL      \"([^"\\]|\\.)*\"
 	construct_macro->repl = yytext;
 }
 
-<ctxDefineFunctionLikeMacro>\([ \t0-9a-zA-Z_\,]*\) {
-	std::string str = yytext;
-	construct_macro->args = str.substr(1,str.size()-2);
+<ctxDefineFunctionLikeMacro>\( {
+	BEGINCONTEXT(ctxDefineFunctionLikeMacroArgs);
+}
+
+<ctxDefineFunctionLikeMacroArgs>{WS}
+
+<ctxDefineFunctionLikeMacroArgs>[^\,\(\) \t\r\n][^\,\(\)\r\n]*/[\,\(\)] {
+	construct_macro->args.push_back(yytext);
+}
+
+<ctxDefineFunctionLikeMacroArgs>\,
+
+<ctxDefineFunctionLikeMacroArgs>\([^\r\n]*{NL} {
+	ENDCONTEXT();
+	ENDCONTEXT(); // also pop ctxDefineFunctionLikeMacro context
+	ENDCONTEXT(); // also pop ctxDefine context
+	ENDCONTEXT(); // also pop ctxPreporcessor context
+	l.error("unexpected opening brace in macro definition argument list context");
+	construct_macro = nullptr;
+}
+
+<ctxDefineFunctionLikeMacroArgs>\)/{TS} {
+	ENDCONTEXT();
 	BEGINCONTEXT(ctxDefineFunctionLikeMacroReplacement);
 }
 
@@ -194,7 +215,6 @@ SL      \"([^"\\]|\\.)*\"
 	ENDCONTEXT(); // also pop ctxDefineFunctionLikeMacro context
 	ENDCONTEXT(); // also pop ctxDefine context
 	ENDCONTEXT(); // also pop ctxPreporcessor context
-	l.flow("defining function-like macro: %s(%s) -> '%s'", construct_macro->name.c_str(), construct_macro->args.c_str(), construct_macro->repl.c_str());
 	handleDefineFunctionLike();
 }
 

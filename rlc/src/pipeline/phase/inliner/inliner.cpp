@@ -104,9 +104,26 @@ Inliner::include(bool external, std::string& path)
 Inliner::FunctionLikeMacro::FunctionLikeMacro(std::vector<std::string> arg_names_, std::string repl_) : arg_names(std::move(arg_names_)), repl(repl_) {}
 
 void
+Inliner::checkMacroExists(std::string& name)
+{
+	if(macroExists(name))
+	{
+		std::string err = "attempted to redefine existing macro: ";
+		err.append(name);
+		LexerError(err.c_str());
+	}
+}
+
+bool
+Inliner::macroExists(std::string& name)
+{
+	return object_like_macros.count(name) > 0 || function_like_macros.count(name) > 0;
+}
+
+void
 Inliner::handleDefineObjectLike()
 {
-	checkMacroExists();
+	checkMacroExists(construct_macro->name);
 
 	define(construct_macro->name, construct_macro->repl);
 
@@ -116,52 +133,69 @@ Inliner::handleDefineObjectLike()
 void
 Inliner::handleDefineFunctionLike()
 {
-	checkMacroExists();
+	checkMacroExists(construct_macro->name);
 
-	std::vector<std::string> args;
-
-	std::stringstream sstream{construct_macro->args};
-	for(std::string arg; std::getline(sstream, arg, ','); args.push_back(arg))
-		;
-
-	define(construct_macro->name, args, construct_macro->repl);
+	define(construct_macro->name, construct_macro->args, construct_macro->repl);
 
 	construct_macro = nullptr;
 }
 
 void
-Inliner::checkMacroExists()
-{
-	if(object_like_macros.count(construct_macro->name) > 0 || function_like_macros.count(construct_macro->name) > 0)
-	{
-		std::string err = "attempted to redefine existing macro: ";
-		err.append(construct_macro->name);
-		LexerError(err.c_str());
-	}
-}
-
-void
 Inliner::define(std::string& name, std::string& replacement)
 {
+	l.flow("defining object-like macro: %s -> '%s'", construct_macro->name.c_str(), construct_macro->repl.c_str());
+
 	object_like_macros[std::move(name)] = std::move(replacement);
 }
 
 void
 Inliner::define(std::string& name, std::vector<std::string>& arguments, std::string& replacement)
 {
+	l.flow("defining function-like macro: %s -> '%s'", name.c_str(), replacement.c_str());
+	for(std::string arg : arguments)
+		l.flow("function-like macro argument: %s", arg.c_str());
+
 	std::unique_ptr<FunctionLikeMacro> flmacro = std::make_unique<FunctionLikeMacro>(std::move(arguments), std::move(replacement));
 	function_like_macros[std::move(name)] = std::move(flmacro);
 }
 
 void
-Inliner::handleExpandFunctionLike()
+Inliner::handleExpandObjectLike()
 {
-	for(std::string arg : expand_macro->args)
-		l.flow("funciton-like macro arg: %s", arg.c_str());
+	std::string expansion = expand(expand_macro->name);
 
-	// TODO(Gleb Salmanov): Expand
+	push_string(expansion);
 
 	expand_macro = nullptr;
+}
+
+void
+Inliner::handleExpandFunctionLike()
+{
+	std::string expansion = expand(expand_macro->name, expand_macro->args);
+
+	push_string(expansion);
+
+	expand_macro = nullptr;
+}
+
+std::string
+Inliner::expand(std::string& name)
+{
+	l.flow("expanding object-like macro: %s", name.c_str());
+	return object_like_macros[name];
+}
+
+std::string
+Inliner::expand(std::string& name, std::vector<std::string>& args)
+{
+	l.flow("expanding function-like macro: %s", name.c_str());
+	for(std::string arg : args)
+		l.flow("funciton-like macro arg: %s", arg.c_str());
+
+	// TODO(Gleb Salmanov): expand
+
+	return "";
 }
 
 void
