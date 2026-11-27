@@ -159,6 +159,73 @@ Inliner::define(std::string& name, std::vector<std::string>& arguments, std::str
 	function_like_macros[std::move(name)] = std::move(flmacro);
 }
 
+Inliner::ExpandMacroArg::ExpandMacroArg(std::string& value_) : value(value_) {}
+
+void
+Inliner::ExpandMacroArgPlain::admit(IExpandMacroArgVisitor& visitor)
+{
+	visitor.visit(*this);
+}
+
+void
+Inliner::ExpandMacroArgCall::admit(IExpandMacroArgVisitor& visitor)
+{
+	visitor.visit(*this);
+}
+
+Inliner::ExpandMacroArgPrintVisitor::ExpandMacroArgPrintVisitor(relog::service::logging::Loggerf& l_) : l(l_) {}
+
+void
+Inliner::ExpandMacroArgPrintVisitor::visit(ExpandMacroArgPlain& arg)
+{
+	l.flow("plain arg: %s", arg.value.c_str());
+}
+
+void
+Inliner::ExpandMacroArgPrintVisitor::visit(ExpandMacroArgCall& arg)
+{
+	l.flow("call arg: %s", arg.value.c_str());
+
+	for(auto&& child_arg : arg.args)
+		child_arg->admit(*this);
+
+	l.flow("end call arg: %s", arg.value.c_str());
+}
+
+void
+Inliner::ExpandMacroStatus::push_arg_call(const char* val)
+{
+	std::string val_str = val;
+	ExpandMacroArgCall* arg = new ExpandMacroArgCall{val_str};
+	std::unique_ptr<ExpandMacroArg> arg_ptr = std::unique_ptr<ExpandMacroArg>{reinterpret_cast<ExpandMacroArg*>(arg)};
+	arg_stack.push(std::move(arg_ptr));
+}
+
+void
+Inliner::ExpandMacroStatus::push_arg_plain(const char* val)
+{
+	std::string val_str = val;
+	ExpandMacroArgPlain* arg = new ExpandMacroArgPlain{val_str};
+	std::unique_ptr<ExpandMacroArg> arg_ptr = std::unique_ptr<ExpandMacroArg>{reinterpret_cast<ExpandMacroArg*>(arg)};
+	arg_stack.push(std::move(arg_ptr));
+}
+
+void
+Inliner::ExpandMacroStatus::pop_push_back()
+{
+	std::unique_ptr<ExpandMacroArg> arg = std::move(arg_stack.top());
+	arg_stack.pop();
+
+	if(arg_stack.empty())
+		arg_root->args.push_back(std::move(arg));
+	else
+	{
+		// all arguments on the stack except for the last one are always calls by definition
+		ExpandMacroArgCall* parent = reinterpret_cast<ExpandMacroArgCall*>(arg_stack.top().get());
+		parent->args.push_back(std::move(arg));
+	}
+}
+
 void
 Inliner::handleExpandObjectLike()
 {
@@ -172,7 +239,7 @@ Inliner::handleExpandObjectLike()
 void
 Inliner::handleExpandFunctionLike()
 {
-	std::string expansion = expand(expand_macro->name, expand_macro->args);
+	std::string expansion = expand(expand_macro->name, expand_macro->arg_root);
 
 	push_string(expansion);
 
@@ -187,11 +254,11 @@ Inliner::expand(std::string& name)
 }
 
 std::string
-Inliner::expand(std::string& name, std::vector<std::string>& args)
+Inliner::expand(std::string& name, std::unique_ptr<ExpandMacroArgCall>& arg_root)
 {
 	l.flow("expanding function-like macro: %s", name.c_str());
-	for(std::string arg : args)
-		l.flow("funciton-like macro arg: %s", arg.c_str());
+	ExpandMacroArgPrintVisitor v{l};
+	arg_root->admit(v);
 
 	// TODO(Gleb Salmanov): expand
 

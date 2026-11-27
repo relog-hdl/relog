@@ -109,23 +109,6 @@ class Inliner final : public yyFlexLexer
 		void include(bool external, std::string& path);
 
 	protected:
-		struct ConstructMacroStatus
-		{
-				std::string name, repl;
-				std::vector<std::string> args;
-		};
-
-		std::unique_ptr<ConstructMacroStatus> construct_macro = nullptr;
-
-		struct ExpandMacroStatus
-		{
-				std::string name;
-				std::string current_arg;
-				std::vector<std::string> args;
-		};
-
-		std::unique_ptr<ExpandMacroStatus> expand_macro = nullptr;
-
 		class FunctionLikeMacro final
 		{
 			protected:
@@ -145,6 +128,15 @@ class Inliner final : public yyFlexLexer
 
 		bool macroExists(std::string& name);
 
+	protected:
+		struct ConstructMacroStatus final
+		{
+				std::string name, repl;
+				std::vector<std::string> args;
+		};
+
+		std::unique_ptr<ConstructMacroStatus> construct_macro = nullptr;
+
 		void handleDefineObjectLike();
 
 		void handleDefineFunctionLike();
@@ -153,13 +145,86 @@ class Inliner final : public yyFlexLexer
 
 		void define(std::string& name, std::vector<std::string>& arguments, std::string& replacement);
 
+	protected:
+		struct IExpandMacroArgVisitor;
+
+		struct ExpandMacroArg
+		{
+				std::string value;
+				std::string replacement;
+
+			public:
+				ExpandMacroArg(std::string& value_);
+
+				virtual ~ExpandMacroArg() = default;
+
+				virtual void admit(IExpandMacroArgVisitor& visitor) = 0;
+		};
+
+		struct ExpandMacroArgPlain final : public ExpandMacroArg
+		{
+			public:
+				using ExpandMacroArg::ExpandMacroArg;
+
+				void admit(IExpandMacroArgVisitor& visitor);
+		};
+
+		struct ExpandMacroArgCall final : public ExpandMacroArg
+		{
+				std::vector<std::unique_ptr<ExpandMacroArg>> args;
+
+			public:
+				using ExpandMacroArg::ExpandMacroArg;
+
+				void admit(IExpandMacroArgVisitor& visitor);
+		};
+
+		struct IExpandMacroArgVisitor
+		{
+			public:
+				virtual ~IExpandMacroArgVisitor() = default;
+
+				virtual void visit(ExpandMacroArgPlain& arg) = 0;
+
+				virtual void visit(ExpandMacroArgCall& arg) = 0;
+		};
+
+		struct ExpandMacroArgPrintVisitor final : public IExpandMacroArgVisitor
+		{
+				relog::service::logging::Loggerf& l;
+
+			public:
+				ExpandMacroArgPrintVisitor(relog::service::logging::Loggerf& l_);
+
+				void visit(ExpandMacroArgPlain& arg);
+
+				void visit(ExpandMacroArgCall& arg);
+		};
+
+	protected:
+		struct ExpandMacroStatus final
+		{
+				std::string name;
+				std::stack<std::unique_ptr<ExpandMacroArg>> arg_stack;
+				std::unique_ptr<ExpandMacroArgCall> arg_root = nullptr;
+
+			public:
+				void push_arg_plain(const char* val);
+
+				void push_arg_call(const char* val);
+
+				void pop_push_back();
+		};
+
+		std::unique_ptr<ExpandMacroStatus> expand_macro = nullptr;
+
 		void handleExpandObjectLike();
 
 		void handleExpandFunctionLike();
 
 		std::string expand(std::string& name);
 
-		std::string expand(std::string& name, std::vector<std::string>& args);
+		std::string expand(std::string& name, std::unique_ptr<ExpandMacroArgCall>& arg_root);
 
 	protected:
 		std::stack<std::unique_ptr<std::istringstream>> streams;

@@ -95,6 +95,7 @@ SL      \"([^"\\]|\\.)*\"
 	{
 		expand_macro = std::make_unique<ExpandMacroStatus>();
 		expand_macro->name = id;
+		expand_macro->arg_root = std::make_unique<ExpandMacroArgCall>(id);
 		l.flow("collecting arguments for function-like macro");
 		BEGINCONTEXT(ctxMacroArgumentsPre);
 	}
@@ -102,37 +103,73 @@ SL      \"([^"\\]|\\.)*\"
 		yyout << yytext;
 }
 
-<ctxMacroArgumentsPre>\( {
+<ctxMacroArgumentsPre>\({WS}*\)
+
+<ctxMacroArgumentsPre>\(/{WS}*[^\,\)] {
 	BEGINCONTEXT(ctxMacroArguments);
 }
 
-<ctxMacroArguments,ctxMacroArgumentsBracedInside>[^\(\)\,\r\n]* {
-	expand_macro->current_arg.append(yytext);
+<ctxMacroArgumentsPre>\(/{WS}*\, {
+	BEGINCONTEXT(ctxMacroArguments);
+	expand_macro->push_arg_plain("");
 }
 
-<ctxMacroArguments,ctxMacroArgumentsBracedInside>\( {
-	expand_macro->current_arg.append("(");
+<ctxMacroArguments,ctxMacroArgumentsBracedInside>{WS}
+
+<ctxMacroArguments,ctxMacroArgumentsBracedInside>[^ \t\(\)\,\r\n]+/{WS}*\( {
+	expand_macro->push_arg_call(yytext);
+}
+
+<ctxMacroArguments,ctxMacroArgumentsBracedInside>[^ \t\(\)\,\r\n]+/{WS}*[\)\,] {
+	expand_macro->push_arg_plain(yytext);
+}
+
+<ctxMacroArguments,ctxMacroArgumentsBracedInside>\({WS}*/\, {
+	BEGINCONTEXT(ctxMacroArgumentsBracedInside);
+	expand_macro->push_arg_plain("");
+}
+
+<ctxMacroArguments,ctxMacroArgumentsBracedInside>\({WS}*/\( {
+	BEGINCONTEXT(ctxMacroArgumentsBracedInside);
+	expand_macro->push_arg_call("");
+}
+
+<ctxMacroArguments,ctxMacroArgumentsBracedInside>\({WS}*/\) {
+	BEGINCONTEXT(ctxMacroArgumentsBracedInside);
+	expand_macro->push_arg_plain("");
+}
+
+<ctxMacroArguments,ctxMacroArgumentsBracedInside>\({WS}* {
 	BEGINCONTEXT(ctxMacroArgumentsBracedInside);
 }
 
 <ctxMacroArgumentsBracedInside>\) {
 	ENDCONTEXT(); // pops either to ctxMacroArgumentsBracedInside or to ctxMacroArguments
 	              // in which case next brace will end macro arguments
-	expand_macro->current_arg.append(")");
+	expand_macro->pop_push_back();
 }
 
-<ctxMacroArgumentsBracedInside>\,{WS}* {
-	expand_macro->current_arg.append(",");
+<ctxMacroArguments,ctxMacroArgumentsBracedInside>\,{WS}*/\, {
+	expand_macro->pop_push_back();
+	expand_macro->push_arg_plain("");
 }
 
-<ctxMacroArguments>\,{WS}* {
-	expand_macro->args.push_back(expand_macro->current_arg);
-	expand_macro->current_arg = std::string{};
+<ctxMacroArguments,ctxMacroArgumentsBracedInside>\,{WS}*/\( {
+	expand_macro->pop_push_back();
+	expand_macro->push_arg_call("");
+}
+
+<ctxMacroArguments,ctxMacroArgumentsBracedInside>\,{WS}*/\) {
+	expand_macro->pop_push_back();
+	expand_macro->push_arg_plain("");
+}
+
+<ctxMacroArguments,ctxMacroArgumentsBracedInside>\,{WS}* {
+	expand_macro->pop_push_back();
 }
 
 <ctxMacroArguments>\) {
-	expand_macro->args.push_back(expand_macro->current_arg);
-	expand_macro->current_arg = std::string{};
+	expand_macro->pop_push_back();
 	ENDCONTEXT();
 	ENDCONTEXT(); // also pop ctxMacroArgumentsPre context
 	handleExpandFunctionLike();
@@ -182,8 +219,16 @@ SL      \"([^"\\]|\\.)*\"
 	construct_macro->repl = yytext;
 }
 
-<ctxDefineFunctionLikeMacro>\( {
+<ctxDefineFunctionLikeMacro>\(/{WS}*[^\,] {
 	BEGINCONTEXT(ctxDefineFunctionLikeMacroArgs);
+}
+
+<ctxDefineFunctionLikeMacro>\({WS}*[\,][^\r\n]*{NL} {
+	ENDCONTEXT();
+	ENDCONTEXT(); // also pop ctxDefine context
+	ENDCONTEXT(); // also pop ctxPreporcessor context
+	l.error("argument name cannot be empty");
+	construct_macro = nullptr;
 }
 
 <ctxDefineFunctionLikeMacroArgs>{WS}
@@ -192,7 +237,16 @@ SL      \"([^"\\]|\\.)*\"
 	construct_macro->args.push_back(yytext);
 }
 
-<ctxDefineFunctionLikeMacroArgs>\,
+<ctxDefineFunctionLikeMacroArgs>\,/{WS}*[^\)\,]
+
+<ctxDefineFunctionLikeMacroArgs>\,{WS}*[\)\,][^\r\n]*{NL} {
+	ENDCONTEXT();
+	ENDCONTEXT(); // also pop ctxDefineFunctionLikeMacro context
+	ENDCONTEXT(); // also pop ctxDefine context
+	ENDCONTEXT(); // also pop ctxPreporcessor context
+	l.error("argument name cannot be empty");
+	construct_macro = nullptr;
+}
 
 <ctxDefineFunctionLikeMacroArgs>\([^\r\n]*{NL} {
 	ENDCONTEXT();
