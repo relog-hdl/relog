@@ -11,11 +11,15 @@
 #include <getopt.h>
 #include <vector>
 
+#define RELOG_OPTS_PREPROCESS_NAME "preprocess"
+
 namespace relog::bootstrap::opts
 {
 
 extern relog::service::logging::LogDomainProxy<std::string>& domain;
 extern relog::service::logging::Loggerf& l;
+
+extern bool preprocess;
 
 struct logging
 {

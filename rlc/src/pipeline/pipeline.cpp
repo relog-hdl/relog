@@ -4,6 +4,8 @@
 #include <pipeline/phase/lex/lexer.hpp>
 #include <pipeline/phase/parse/parser.hpp>
 
+#include <bootstrap/opts.hpp>
+
 #include <service/logging/log_domain.hxx>
 #include <service/logging/logger_backend_terminal.hpp>
 #include <service/logging/logger_formatter_terminal.hpp>
@@ -57,10 +59,18 @@ Pipeline::entrypoint()
 
 	inliner.run();
 
-	Lexer lexer{self, i2l_buf_out};
-	Parser parser{self, lexer};
+	if(relog::bootstrap::opts::preprocess)
+	{
+		if(i2l_buf_out.peek() != std::istream::traits_type::eof())
+			std::cout << i2l_buf_out.rdbuf();
+	}
+	else
+	{
+		Lexer lexer{self, i2l_buf_out};
+		Parser parser{self, lexer};
 
-	parser.parse();
+		parser.parse();
+	}
 
 	return 0;
 }

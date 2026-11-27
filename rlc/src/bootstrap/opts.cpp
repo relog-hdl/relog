@@ -15,10 +15,12 @@ namespace relog::bootstrap::opts
 relog::service::logging::LogDomainProxy<std::string>& domain = logging::get_domain();
 relog::service::logging::Loggerf& l = logging::get_logger();
 
+bool preprocess = false;
+
 // clang-format off
-const_cstring optstring = "d";
+const_cstring optstring = "E";
 struct option longopts[] = {
-	{ "debug", no_argument, NULL, 0 },
+	{ RELOG_OPTS_PREPROCESS_NAME, no_argument, reinterpret_cast<int*>(&preprocess), true },
 	{ 0, 0, 0, 0 }
 };
 // clang-format on
@@ -34,6 +36,8 @@ parse_opts(std::vector<char*>& nonoptargs, int argc, char* argv[])
 	char** optarg_override = NULL;
 	unsigned int optarg_override_length = 0;
 	int last = 0;
+
+	std::string long_option_name;
 
 	while(true)
 	{
@@ -61,8 +65,11 @@ parse_opts(std::vector<char*>& nonoptargs, int argc, char* argv[])
 						break;
 					}
 
+					long_option_name = longopts[option_index].name;
+
 					break;
-				case 'd':
+				case 'E':
+					preprocess = true;
 					cont = true;
 					break;
 				case '?':
@@ -71,6 +78,8 @@ parse_opts(std::vector<char*>& nonoptargs, int argc, char* argv[])
 				default:
 					l.error("Unknown error while parsing option: %d\n(Option functionality likely not implemented)", option);
 					return UNKNOWN_ERROR;
+				case 1:
+					goto parse_non_option_args;
 			}
 
 			if(cont)
@@ -120,6 +129,7 @@ parse_opts(std::vector<char*>& nonoptargs, int argc, char* argv[])
 			arg_reparse = false;
 		}
 
+parse_non_option_args:
 		if(optind >= argc)
 			return OK;
 
