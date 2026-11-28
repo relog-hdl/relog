@@ -57,6 +57,8 @@ SL      \"([^"\\]|\\.)*\"
 
 %x ctxPreprocessor
 
+%x ctxPreprocessorShadowed
+
 %x ctxPreprocessorUnrecognized
 
 %x ctxInclude
@@ -73,36 +75,54 @@ SL      \"([^"\\]|\\.)*\"
 
 %x ctxUndef
 
+%x ctxIfdef
+
+%x ctxIfndef
+
+%x ctxElifdef
+
+%x ctxElifndef
+
+%x ctxElse
+
+%x ctxEndif
+
+%x ctxConditionalCompilation
+
 %%
 
-{SL} {
+<INITIAL,ctxConditionalCompilation>{SL} {
 	// ignore preprocessor directives inside of string literals
-	yyout << yytext;
+	if(cc_allows_comp())
+		yyout << yytext;
 }
 
-^{WS}*` {
+<INITIAL,ctxConditionalCompilation>^{WS}*` {
 	l.flow("begin preprocessor directive");
 	BEGINCONTEXT(ctxPreprocessor);
 }
 
-{ID}/{TS} {
-	std::string id{yytext};
-	if(object_like_macros.count(id) > 0)
+<INITIAL,ctxConditionalCompilation>{ID}/{TS} {
+	if(cc_allows_comp())
 	{
-		expand_macro = std::make_unique<ExpandMacroStatus>();
-		expand_macro->name = id;
-		handleExpandObjectLike();
+		std::string id{yytext};
+		if(object_like_macros.count(id) > 0)
+		{
+			expand_macro = std::make_unique<ExpandMacroStatus>();
+			expand_macro->name = id;
+			handleExpandObjectLike();
+		}
+		else if(function_like_macros.count(id) > 0)
+		{
+			expand_macro = std::make_unique<ExpandMacroStatus>();
+			expand_macro->name = id;
+			expand_macro->arg_root = std::make_unique<ExpandMacroArgCall>(id);
+			l.flow("collecting arguments for function-like macro");
+			BEGINCONTEXT(ctxMacroArgumentsPre);
+		}
+		else
+			yyout << yytext;
 	}
-	else if(function_like_macros.count(id) > 0)
-	{
-		expand_macro = std::make_unique<ExpandMacroStatus>();
-		expand_macro->name = id;
-		expand_macro->arg_root = std::make_unique<ExpandMacroArgCall>(id);
-		l.flow("collecting arguments for function-like macro");
-		BEGINCONTEXT(ctxMacroArgumentsPre);
-	}
-	else
-		yyout << yytext;
 }
 
 <ctxMacroArgumentsPre>\({WS}*\)
@@ -175,11 +195,6 @@ SL      \"([^"\\]|\\.)*\"
 	ENDCONTEXT();
 	ENDCONTEXT(); // also pop ctxMacroArgumentsPre context
 	handleExpandFunctionLike();
-}
-
-<<EOF>> {
-	l.flow("eof");
-	yyterminate();
 }
 
 <ctxInclude>{WS}
@@ -293,22 +308,98 @@ SL      \"([^"\\]|\\.)*\"
 	l.error("invalid undefine directive trailer: %s", yytext);
 }
 
+<ctxIfdef,ctxIfndef,ctxElifdef,ctxElifndef>{WS}
+
+<ctxIfdef,ctxIfndef>{NL} {
+	ENDCONTEXT();
+	ENDCONTEXT(); // also pop ctxPreporcessor context
+	BEGINCONTEXT(ctxConditionalCompilation);
+}
+
+<ctxElifdef,ctxElifndef>{NL} {
+	ENDCONTEXT();
+	ENDCONTEXT(); // also pop ctxPreporcessor context
+}
+
+<ctxIfdef,ctxIfndef>{ID}/{WS}*{NL} {
+	handleIfDefined(yytext, YY_START == ctxIfndef);
+}
+
+<ctxElifdef,ctxElifndef>{ID}/{WS}*{NL} {
+	handleElifDefined(yytext, YY_START == ctxElifndef);
+}
+
+<ctxIfdef,ctxIfndef,ctxElifdef,ctxElifndef>[^\r\n]*[^ \t0-9a-zA-Z_\r\n]+[^\r\n]*{NL} {
+	ENDCONTEXT();
+	ENDCONTEXT(); // also pop ctxPreporcessor context
+	yytext[strlen(yytext)-1] = '\0';
+	l.error("invalid definition-conditional directive trailer: %s", yytext);
+}
+
+<ctxEndif,ctxElse>{WS}
+
+<ctxEndif>{NL} {
+	ENDCONTEXT();
+	ENDCONTEXT(); // also pop ctxPreporcessor context
+	ENDCONTEXT(); // also pop ctxConditionalCompilation context
+	handleEndif();
+}
+
+<ctxElse>{NL} {
+	ENDCONTEXT();
+	ENDCONTEXT(); // also pop ctxPreporcessor context
+	handleElseDirective();
+}
+
+<ctxEndif,ctxElse>[^ \t\r\n]+[^\r\n]*/{NL} {
+	l.error("invalid endif directive trailer: %s", yytext);
+}
+
 <ctxPreprocessor>{NL} {
 	l.flow("end preprocessor directive");
 	ENDCONTEXT();
 }
 
 <ctxPreprocessor>include/{TS} {
-	BEGINCONTEXT(ctxInclude);
+	BEGINCONTEXT(cc_allows_comp() ? ctxInclude : ctxPreprocessorShadowed);
 }
 
 <ctxPreprocessor>define/{TS} {
-	BEGINCONTEXT(ctxDefine);
-	construct_macro = std::make_unique<ConstructMacroStatus>();
+	if(cc_allows_comp())
+	{
+		BEGINCONTEXT(ctxDefine);
+		construct_macro = std::make_unique<ConstructMacroStatus>();
+	}
+	else
+		BEGINCONTEXT(ctxPreprocessorShadowed);
 }
 
 <ctxPreprocessor>undef/{TS} {
-	BEGINCONTEXT(ctxUndef);
+	BEGINCONTEXT(cc_allows_comp() ? ctxUndef : ctxPreprocessorShadowed);
+}
+
+<ctxPreprocessor>ifdef/{TS} {
+	BEGINCONTEXT(ctxIfdef);
+}
+
+<ctxPreprocessor>ifndef/{TS} {
+	BEGINCONTEXT(ctxIfndef);
+}
+
+<ctxPreprocessor>elifdef/{TS} {
+	BEGINCONTEXT(ctxElifdef);
+}
+
+<ctxPreprocessor>elifndef/{TS} {
+	BEGINCONTEXT(ctxElifndef);
+}
+
+<ctxPreprocessor>else/{TS} {
+	BEGINCONTEXT(ctxElse);
+}
+
+<ctxPreprocessor>endif/{TS} {
+	BEGINCONTEXT(ctxEndif);
 }
 
 <ctxPreprocessor>[^ \t\r\n]+/{TS} {
@@ -323,6 +414,28 @@ SL      \"([^"\\]|\\.)*\"
 
 <ctxPreprocessorUnrecognized>[^\r\n]* {
 	l.warning("ignoring unrecognized preprocessor directive trailer: %s", yytext);
+}
+
+<ctxPreprocessorShadowed>{NL} {
+	ENDCONTEXT();
+	ENDCONTEXT(); // also pop ctxPreprocessor context
+}
+
+<ctxPreprocessorShadowed>[^\r\n]*/{NL}
+
+<ctxConditionalCompilation>{NL} {
+	if(ccs_stack.top()->inside_match)
+		ECHO;
+}
+
+<ctxConditionalCompilation>. {
+	if(ccs_stack.top()->inside_match)
+		ECHO;
+}
+
+<<EOF>> {
+	l.flow("eof");
+	yyterminate();
 }
 
 %%

@@ -423,6 +423,110 @@ Inliner::replace_all_id_occurences(std::string& in, std::string& of, std::string
 }
 
 void
+Inliner::handleIfDefined(char* name_str, bool inverse)
+{
+	std::string name{name_str};
+
+	ifDefined(name, inverse);
+}
+
+void
+Inliner::handleElifDefined(char* name_str, bool inverse)
+{
+	std::string name{name_str};
+
+	elifDefined(name, inverse);
+}
+
+void
+Inliner::handleElseDirective()
+{
+	elseDirective();
+}
+
+void
+Inliner::handleEndif()
+{
+	endif();
+}
+
+void
+Inliner::ifDefined(std::string& name, bool inverse)
+{
+	l.flow("handling if%sdef: %s", inverse ? "n" : "", name.c_str());
+
+	std::unique_ptr<ConditionalCompilationStatus> status = std::make_unique<ConditionalCompilationStatus>();
+
+	match_update_ccs(status, name, inverse);
+
+	ccs_stack.push(std::move(status));
+}
+
+void
+Inliner::elifDefined(std::string& name, bool inverse)
+{
+	l.flow("handling elif%sdef: %s", inverse ? "n" : "", name.c_str());
+
+	std::unique_ptr<ConditionalCompilationStatus>& status = ccs_stack.top();
+
+	status->inside_match = false;
+
+	match_update_ccs(status, name, inverse);
+}
+
+void
+Inliner::elseDirective()
+{
+	l.flow("handling else");
+
+	std::unique_ptr<ConditionalCompilationStatus>& status = ccs_stack.top();
+
+	status->inside_match = false;
+
+	if(!status->matched)
+	{
+		// not setting status->matched, so technically elses can be chained
+		status->inside_match = true;
+	}
+}
+
+void
+Inliner::endif()
+{
+	l.flow("handling endif");
+
+	ccs_stack.pop();
+}
+
+void
+Inliner::match_update_ccs(std::unique_ptr<ConditionalCompilationStatus>& status, std::string& name, bool inverse)
+{
+	if(!status->matched)
+	{
+		bool match = macroExists(name);
+		match = inverse ? !match : match;
+
+		if(match)
+		{
+			status->inside_match = true;
+			status->matched = true;
+		}
+	}
+}
+
+bool
+Inliner::cc_allows_comp()
+{
+	if(ccs_stack.empty())
+		return true;
+
+	if(ccs_stack.top()->inside_match)
+		return true;
+
+	return false;
+}
+
+void
 Inliner::push_string(std::string& str)
 {
 	std::unique_ptr<std::istringstream> str_stream = std::make_unique<std::istringstream>(str);

@@ -246,6 +246,35 @@ class Inliner final : public yyFlexLexer
 		inline bool replace_all_id_occurences(std::string& in, std::string& of, std::string& with);
 
 	protected:
+		struct ConditionalCompilationStatus final
+		{
+				bool matched = false;
+				bool inside_match = false;
+		};
+
+		std::stack<std::unique_ptr<ConditionalCompilationStatus>> ccs_stack;
+
+		void handleIfDefined(char* name_str, bool inverse);
+
+		void handleElifDefined(char* name_str, bool inverse);
+
+		void handleElseDirective();
+
+		void handleEndif();
+
+		void ifDefined(std::string& name, bool inverse);
+
+		void elifDefined(std::string& name, bool inverse);
+
+		void elseDirective();
+
+		void endif();
+
+		void match_update_ccs(std::unique_ptr<ConditionalCompilationStatus>& status, std::string& name, bool inverse);
+
+		bool cc_allows_comp();
+
+	protected:
 		std::stack<std::unique_ptr<std::istringstream>> streams;
 
 		void push_string(std::string& str);
