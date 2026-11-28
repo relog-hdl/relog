@@ -166,6 +166,36 @@ Inliner::define(std::string& name, std::vector<std::string>& arguments, std::str
 	function_like_macros[std::move(name)] = std::move(flmacro);
 }
 
+void
+Inliner::handleUndefine(char* name_str)
+{
+	std::string name{name_str};
+
+	if(!undefine(name))
+		l.error("attempted to undefine macro that was not previously defined: %s", name_str);
+}
+
+bool
+Inliner::undefine(std::string& name)
+{
+	if(object_like_macros.count(name) > 0)
+	{
+		l.flow("undefining object-like macro: %s", name.c_str());
+		object_like_macros.erase(name);
+
+		return true;
+	}
+	else if(function_like_macros.count(name) > 0)
+	{
+		l.flow("undefining function-like macro: %s", name.c_str());
+		function_like_macros.erase(name);
+
+		return true;
+	}
+
+	return false;
+}
+
 Inliner::ExpandMacroArg::ExpandMacroArg(std::string& value_) : value(value_) {}
 
 void

@@ -142,6 +142,10 @@ class Inliner final : public yyFlexLexer
 
 		void define(std::string& name, std::vector<std::string>& arguments, std::string& replacement);
 
+		void handleUndefine(char* name_str);
+
+		bool undefine(std::string& name);
+
 	protected:
 		struct IExpandMacroArgVisitor;
 

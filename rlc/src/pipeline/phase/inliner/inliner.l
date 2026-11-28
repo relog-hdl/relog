@@ -71,6 +71,8 @@ SL      \"([^"\\]|\\.)*\"
 
 %x ctxDefineFunctionLikeMacroReplacement
 
+%x ctxUndef
+
 %%
 
 {SL} {
@@ -276,6 +278,21 @@ SL      \"([^"\\]|\\.)*\"
 	construct_macro->repl = yytext;
 }
 
+<ctxUndef>{WS}
+
+<ctxUndef>{NL} {
+	ENDCONTEXT();
+	ENDCONTEXT(); // also pop ctxPreporcessor context
+}
+
+<ctxUndef>{ID}/{WS}*{NL} {
+	handleUndefine(yytext);
+}
+
+<ctxUndef>[^\r\n]*[^ \t0-9a-zA-Z_\r\n]+[^\r\n]*/{NL} {
+	l.error("invalid undefine directive trailer: %s", yytext);
+}
+
 <ctxPreprocessor>{NL} {
 	l.flow("end preprocessor directive");
 	ENDCONTEXT();
@@ -288,6 +305,10 @@ SL      \"([^"\\]|\\.)*\"
 <ctxPreprocessor>define/{TS} {
 	BEGINCONTEXT(ctxDefine);
 	construct_macro = std::make_unique<ConstructMacroStatus>();
+}
+
+<ctxPreprocessor>undef/{TS} {
+	BEGINCONTEXT(ctxUndef);
 }
 
 <ctxPreprocessor>[^ \t\r\n]+/{TS} {
