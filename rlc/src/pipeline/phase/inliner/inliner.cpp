@@ -15,6 +15,7 @@ namespace relog::pipeline::inliner
 
 Inliner::Inliner(Pipeline& pipeline, Decanter& decanter, std::ostream& out) : yyFlexLexer(pipeline.ssc.top()->getReadstream(), out), pl(pipeline), dctr(decanter), os(out)
 {
+	yypush_buffer_state(yy_create_buffer(pl.ssc.top()->getReadstream(), YY_BUF_SIZE));
 	runDecanter();
 }
 
@@ -23,26 +24,32 @@ Inliner::yywrap()
 {
 	if(!streams.empty())
 	{
-		l.flow("popping buffer");
+		l.flow("popping macro buffer");
 
 		yypop_buffer_state();
 		streams.pop();
 
-		if(!streams.empty())
-		{
-			l.flow("streams not empty, not wrapping");
-			return false;
-		}
+		// until macro streams are empty on a yywrap() call,
+		// there is always an underlying file that has not been fully read yet
+		return false;
 	}
 
+	l.flow("popping source file");
+
+	yypop_buffer_state();
 	pl.ssc.pop();
 
 	if(pl.ssc.empty())
+	{
 		return true;
+	}
+	else
+	{
+		yypush_buffer_state(yy_create_buffer(pl.ssc.top()->getReadstream(), YY_BUF_SIZE));
+		runDecanter();
 
-	switch_streams(pl.ssc.top()->getReadstream(), os);
-	runDecanter();
-	return false;
+		return false;
+	}
 }
 
 void
@@ -91,7 +98,7 @@ Inliner::include(bool external, std::string& path)
 	try
 	{
 		pl.ssc.openPush(const_cast<char*>(path.c_str()));
-		switch_streams(pl.ssc.top()->getReadstream(), os);
+		yypush_buffer_state(yy_create_buffer(pl.ssc.top()->getReadstream(), YY_BUF_SIZE));
 		runDecanter();
 	}
 	catch(const std::exception& e)
